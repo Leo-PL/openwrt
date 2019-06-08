@@ -116,6 +116,16 @@ define Device/tplink_archer-c7-v1
 endef
 TARGET_DEVICES += tplink_archer-c7-v1
 
+define Device/tplink_tl-wr703n-16m
+  $(Device/tplink-16mlzma)
+  ATH_SOC := ar9331
+  DEVICE_TITLE := TP-Link TL-WR703N (16M)
+  DEVICE_PACKAGES := kmod-usb-chipidea2 -swconfig
+  TPLINK_HWID := 0x07030101
+  SUPPORTED_DEVICES := tplink,tl-wr703n tl-wr703n
+endef
+TARGET_DEVICES += tplink_tl-wr703n-16m
+
 define Device/tplink_archer-c7-v2
   $(Device/tplink-16mlzma)
   ATH_SOC := qca9558
