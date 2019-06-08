@@ -443,6 +443,18 @@ define Device/tl-wr2543-v1
 endef
 TARGET_DEVICES += tl-wr2543-v1
 
+define Device/tl-wr703n-v1-16m
+  $(Device/tplink-16mlzma)
+  DEVICE_TITLE := TP-LINK TL-WR703N v1 (16M)
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2 -swconfig
+  BOARDNAME := TL-WR703N
+  DEVICE_PROFILE := TLWR703
+  TPLINK_HWID := 0x07030101
+  CONSOLE := ttyATH0,115200
+  SUPPORTED_DEVICES := tl-wr703n
+endef
+TARGET_DEVICES += tl-wr703n-v1-16m
+
 define Device/tl-wr710n-v1
   $(Device/tplink-8mlzma)
   DEVICE_TITLE := TP-LINK TL-WR710N v1
