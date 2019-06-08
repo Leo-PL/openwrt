@@ -1,0 +1,42 @@
+--- a/db.txt
++++ b/db.txt
+@@ -12,22 +12,10 @@ wmmrule ETSI:
+ country 00:
+ 	# There is no global intersection for 802.11ah, so just mark the entire
+ 	# possible band as NO-IR
+-	(755 - 928 @ 2), (20), NO-IR
+-	(2402 - 2472 @ 40), (20)
+-	# Channel 12 - 13.
+-	(2457 - 2482 @ 20), (20), NO-IR, AUTO-BW
+-	# Channel 14. Only JP enables this and for 802.11b only
+-	(2474 - 2494 @ 20), (20), NO-IR, NO-OFDM
+-	# Channel 36 - 48
+-	(5170 - 5250 @ 80), (20), AUTO-BW
+-	# Channel 52 - 64
+-	(5250 - 5330 @ 80), (20), NO-IR, DFS, AUTO-BW
+-	# Channel 100 - 144
+-	(5490 - 5730 @ 160), (20), NO-IR, DFS
+-	# Channel 149 - 165
+-	(5735 - 5835 @ 80), (20), NO-IR
+-	# IEEE 802.11ad (60GHz), channels 1..3
+-	(57240 - 63720 @ 2160), (0)
++	(755 - 928 @ 2), (40)
++	(2100 - 2600 @ 40), (40)
++	(4900 - 6100 @ 160), (40)
++	(57000 - 66000 @ 2160), (40)
+ 
+ # AD as part of CEPT accepted decisions 2005/513/EC (5GHz RLAN, EN 301 893)
+ # and 2006/771/EC (amended by 2008/432/EC, Short-Range Devices, EN 300 440)
+@@ -376,6 +364,12 @@ country CR: DFS-FCC
+ 	(5490 - 5730 @ 20), (24), DFS
+ 	(5735 - 5835 @ 20), (30)
+ 
++country CT:
++	(755 - 928 @ 2), (40)
++	(2100 - 2600 @ 40), (40)
++	(4900 - 6100 @ 160), (40)
++	(57000 - 66000 @ 2160), (40)
++
+ # Source:
+ # https://www.mincom.gob.cu/es/marco-legal
+ # - Redes Informáticas
