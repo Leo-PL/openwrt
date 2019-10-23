@@ -1,0 +1,43 @@
+--- a/drivers/mtd/ofpart.c
++++ b/drivers/mtd/ofpart.c
+@@ -36,7 +36,8 @@ static int parse_fixed_partitions(struct
+ 	struct device_node *pp;
+ 	int nr_parts, i, ret = 0;
+ 	bool dedicated = true;
+-
++	int fw_idx,last_part_idx,count; // track which index is firmware partition on and the index of the last partition
++	uint64_t total_size,diff; // use to calculate total size which is offset of last partition + size and store the difference
+ 
+ 	/* Pull of_node from the master device node */
+ 	mtd_node = mtd_get_of_node(master);
+@@ -114,18 +115,28 @@ static int parse_fixed_partitions(struct
+ 		if (!partname)
+ 			partname = of_get_property(pp, "name", &len);
+ 		parts[i].name = partname;
+-
++		if (!strcmp(partname, "firmware"))fw_idx=i; //get the index of firmware
+ 		if (of_get_property(pp, "read-only", &len))
+ 			parts[i].mask_flags |= MTD_WRITEABLE;
+ 
+ 		if (of_get_property(pp, "lock", &len))
+ 			parts[i].mask_flags |= MTD_POWERUP_LOCK;
+-
++		last_part_idx=i; //get the index of the last partition
+ 		i++;
+ 	}
+ 
+ 	if (!nr_parts)
+ 		goto ofpart_none;
++	
++	total_size=parts[last_part_idx].offset+parts[last_part_idx].size; //calculate total size = last partition offset + size
++	if(master->size > total_size) //if flash is modified then adjust
++	{
++		diff = master->size - total_size; //get the difference
++		parts[fw_idx].size = parts[fw_idx].size + diff; //increase the size of firmware
++		for (count=fw_idx+1;count<=last_part_idx;count++){
++			parts[count].offset=parts[count].offset+diff; //increase all the offsets of all partitions after firmware
++		}
++	}
+ 
+ 	*pparts = parts;
+ 	return nr_parts;
