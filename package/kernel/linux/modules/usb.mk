@@ -730,6 +730,7 @@ define KernelPackage/usb-serial-mos7720
   TITLE:=Support for Moschip MOS7720 devices
   KCONFIG:=CONFIG_USB_SERIAL_MOS7720
   FILES:=$(LINUX_DIR)/drivers/usb/serial/mos7720.ko
+  DEPENDS:=+KERNEL_USB_SERIAL_MOS7715_PARPORT:kmod-ppdev
   AUTOLOAD:=$(call AutoProbe,mos7720)
   $(call AddDepends/usb-serial)
 endef
@@ -738,8 +739,15 @@ define KernelPackage/usb-serial-mos7720/description
  Kernel support for Moschip MOS7720 USB-to-Serial converters
 endef
 
-$(eval $(call KernelPackage,usb-serial-mos7720))
+define KernelPackage/usb-serial-mos7720/config
 
+	config KERNEL_USB_SERIAL_MOS7715_PARPORT
+		bool "Support for parallel port on the Moschip 7715"
+		depends on PACKAGE_kmod-usb-serial-mos7720
+		default y if ALL_KMODS
+
+endef
+$(eval $(call KernelPackage,usb-serial-mos7720))
 
 define KernelPackage/usb-serial-mos7840
   TITLE:=Support for Moschip MOS7840 devices
