@@ -22,6 +22,7 @@
 #include <resolv.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "compat/base64.h"
 
 enum { MAX_PEERS = 65536, PORT = 49918 };
 
@@ -126,8 +127,8 @@ int main(int argc, char *argv[])
 		uint8_t their_pubkey[32];
 	} __attribute__((packed)) packet = {
 		.udp = {
-			.len = htons(sizeof(packet)),
-			.dest = htons(PORT)
+			.uh_ulen = htons(sizeof(packet)),
+			.uh_dport = htons(PORT)
 		}
 	};
 	struct {
@@ -161,7 +162,7 @@ int main(int argc, char *argv[])
 	read_peers(interface);
 	cmd("ip link set %s up", interface);
 	unbase64(packet.my_pubkey, cmd("wg show %s public-key", interface));
-	packet.udp.source = htons(atoi(cmd("wg show %s listen-port", interface)));
+	packet.udp.uh_sport = htons(atoi(cmd("wg show %s listen-port", interface)));
 
 	/* We use raw sockets so that the WireGuard interface can actually own the real socket. */
 	sock = socket(AF_INET, SOCK_RAW, IPPROTO_UDP);
@@ -169,7 +170,7 @@ int main(int argc, char *argv[])
 		perror("socket");
 		return errno;
 	}
-	apply_bpf(sock, ntohs(packet.udp.source), ntohl(addr.sin_addr.s_addr));
+	apply_bpf(sock, ntohs(packet.udp.uh_sport), ntohl(addr.sin_addr.s_addr));
 
 check_again:
 	repeat = false;
