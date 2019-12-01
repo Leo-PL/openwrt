@@ -216,6 +216,10 @@ tplink,tl-wr941-v4)
 	ucidef_set_led_switch "lan3" "LAN3" "tp-link:green:lan3" "switch0" "0x08"
 	ucidef_set_led_switch "lan4" "LAN4" "tp-link:green:lan4" "switch0" "0x10"
 	;;
+tplink,tl-wr902ac-v1)
+	ucidef_set_led_netdev "lan" "LAN" "tp-link:green:lan" "eth0"
+	ucidef_set_led_netdev "internet" "Internet" "tp-link:green:internet" "eth0"
+	;;
 tplink,tl-wr940n-v3|\
 tplink,tl-wr940n-v4|\
 tplink,tl-wr941nd-v6)
