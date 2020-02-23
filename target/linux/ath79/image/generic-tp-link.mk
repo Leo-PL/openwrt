@@ -333,6 +333,15 @@ define Device/tplink_tl-wr710n-v2.1
 endef
 TARGET_DEVICES += tplink_tl-wr710n-v2.1
 
+define Device/tplink_tl-wr743nd-v1-16m
+  $(Device/tplink-16m)
+  ATH_SOC := ar7240
+  DEVICE_TITLE := TP-Link TL-WR743ND v1 (16M)
+  TPLINK_HWID := 0x07430001
+  SUPPORTED_DEVICES += tplink,tl-wr743nd-v1 tl-wr743nd-v1
+endef
+TARGET_DEVICES += tplink_tl-wr743nd-v1-16m
+
 define Device/tplink_tl-wr842n-v1
   $(Device/tplink-8m)
   ATH_SOC := ar7241
