@@ -463,6 +463,16 @@ define Device/tl-wr710n-v2.1
 endef
 TARGET_DEVICES += tl-wr710n-v2.1
 
+define Device/tl-wr743nd-v1-16m
+  $(Device/tplink-16m)
+  DEVICE_TITLE := TP-LINK TL-WR743N/ND v1 (16M)
+  BOARDNAME := TL-WR741ND
+  DEVICE_PROFILE := TLWR743
+  SUPPORTED_DEVICES := tl-wr743nd-v1
+  TPLINK_HWID := 0x07430001
+endef
+TARGET_DEVICES += tl-wr743nd-v1-16m
+
 define Device/tl-wr810n-v1
   $(Device/tplink-8mlzma)
   DEVICE_TITLE := TP-LINK TL-WR810N v1
