@@ -70,6 +70,7 @@ ath79_setup_interfaces()
 	tplink,eap225-v1|\
 	tplink,eap225-v3|\
 	tplink,eap245-v1|\
+	tplink,tl-mr3040-v2|\
 	tplink,re350k-v1|\
 	tplink,re355-v1|\
 	tplink,re450-v1|\

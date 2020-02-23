@@ -20,6 +20,7 @@ glinet,gl-ar300m16|\
 pcs,cap324|\
 tplink,cpe610-v1|\
 tplink,cpe610-v2|\
+tplink,tl-mr3040-v2|\
 tplink,tl-wa1201-v2)
 	ucidef_set_led_netdev "lan" "LAN" "green:lan" "eth0"
 	;;
