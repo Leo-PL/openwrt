@@ -286,6 +286,18 @@ define Device/re450-v1
 endef
 TARGET_DEVICES += re450-v1
 
+define Device/tl-mr3040-v2-16m
+  $(Device/tplink-16mlzma)
+  DEVICE_TITLE := TP-LINK TL-MR3040 v2 (16M)
+  DEVICE_PACKAGES := kmod-usb2 kmod-usb-ledtrig-usbport -swconfig
+  BOARDNAME := TL-MR3040-v2
+  DEVICE_PROFILE := TLMR3040
+  TPLINK_HWID := 0x30400002
+  CONSOLE := ttyATH0,115200
+  SUPPORTED_DEVICES := tl-mr3040-v2
+endef
+TARGET_DEVICES += tl-mr3040-v2-16m
+
 define Device/tl-mr6400-v1
   $(Device/tplink-8mlzma)
   DEVICE_TITLE := TP-LINK TL-MR6400 v1
