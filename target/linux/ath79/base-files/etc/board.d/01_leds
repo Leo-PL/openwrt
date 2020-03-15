@@ -230,6 +230,7 @@ tplink,tl-wr940n-v6)
 	;;
 ubnt,bullet-m|\
 ubnt,bullet-m-xw|\
+ubnt,nanobridge-m|\
 ubnt,nanostation-loco-m|\
 ubnt,nanostation-loco-m-xw|\
 ubnt,nanostation-m|\
