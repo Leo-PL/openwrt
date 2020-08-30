@@ -107,6 +107,16 @@ define Device/linksys_viper
 endef
 TARGET_DEVICES += linksys_viper
 
+define Device/netgear_readynas-duo-v2
+  DEVICE_TITLE := NETGEAR ReadyNAS Duo v2
+  DEVICE_DTS := kirkwood-netgear_readynas_duo_v2
+  KERNEL_IN_UBI :=
+  IMAGES := sysupgrade.bin
+  DEVICE_PACKAGES := kmod-ata-marvell-sata kmod-fs-ext4 \
+	kmod-gpio-button-hotplug kmod-hwmon-g762 kmod-rtc-rs5c372a kmod-usb3
+endef
+TARGET_DEVICES += netgear_readynas-duo-v2
+
 define Device/raidsonic_ib-nas62x0
   DEVICE_TITLE := RaidSonic ICY BOX IB-NAS62x0
   DEVICE_DTS := kirkwood-ib62x0
