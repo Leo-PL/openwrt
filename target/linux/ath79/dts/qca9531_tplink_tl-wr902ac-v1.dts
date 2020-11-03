@@ -98,6 +98,22 @@
 			gpios = <&gpio 1 GPIO_ACTIVE_HIGH>;
 		};
 	};
+
+	firmware-concat {
+		compatible = "mtd-concat";
+		devices = <&fwconcat1 &fwconcat2>;
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			partition@0 {
+				compatible = "tplink,firmware";
+				label = "firmware";
+				reg = <0x000000 0x7b0000>;
+			};
+		};
+	};
 };
 
 &uart {
@@ -123,16 +139,32 @@
 				read-only;
 			};
 
-			partition@20000 {
-				compatible = "tplink,firmware";
-				label = "firmware";
+			fwconcat1: partition@20000 {
+				label = "fwconcat1";
 				reg = <0x020000 0x730000>;
 			};
 
-			tplink: partition@750000 {
-				label = "tplink";
-				reg = <0x750000 0x0a0000>;
+			info: partition@750000 {
+				label = "info";
+				reg = <0x750000 0x010000>;
 				read-only;
+			};
+
+			partition@760000 {
+				label = "soft-version";
+				reg = <0x760000 0x00b000>;
+				read-only;
+			};
+
+			partition@76b000 {
+				label = "support-list";
+				reg = <0x76b000 0x004000>;
+				read-only;
+			};
+
+			fwconcat2: partition@770000 {
+				label = "fwconcat2";
+				reg = <0x770000 0x080000>;
 			};
 
 			art: partition@7f0000 {
@@ -149,7 +181,7 @@
 
 	phy-handle = <&swphy4>;
 
-	mtd-mac-address = <&tplink 0x8>;
+	mtd-mac-address = <&info 0x8>;
 	mtd-mac-address-increment = <1>;
 };
 
@@ -161,7 +193,7 @@
 	status = "okay";
 
 	mtd-cal-data = <&art 0x1000>;
-	mtd-mac-address = <&tplink 0x8>;
+	mtd-mac-address = <&info 0x8>;
 };
 
 &pcie0 {

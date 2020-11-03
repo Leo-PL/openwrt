@@ -370,7 +370,7 @@ define Device/tplink_tl-wr902ac-v1
   DEVICE_PACKAGES := kmod-usb2 kmod-usb-ledtrig-usbport \
     kmod-ath10k-ct-smallbuffers ath10k-firmware-qca9887-ct -swconfig -uboot-envtools
   TPLINK_BOARD_ID := TL-WR902AC-V1
-  IMAGE_SIZE := 7360k
+  IMAGE_SIZE := 7872k
   TPLINK_HWID := 0x0
   TPLINK_HWREV := 0
   SUPPORTED_DEVICES += tl-wr902ac-v1
