@@ -94,6 +94,23 @@
 			gpios = <&gpio 1 GPIO_ACTIVE_HIGH>;
 		};
 	};
+
+	firmware-concat {
+		compatible = "mtd-concat";
+
+		devices = <&firmware1 &firmware2>;
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			partition@0 {
+				compatible = "tplink,firmware";
+				label = "firmware";
+				reg = <0x000000 0x7b0000>;
+			};
+		};
+	};
 };
 
 &spi {
@@ -115,9 +132,8 @@
 				read-only;
 			};
 
-			partition@20000 {
-				compatible = "tplink,firmware";
-				label = "firmware";
+			firmware1: partition@20000 {
+				label = "firmware1";
 				reg = <0x020000 0x730000>;
 			};
 
@@ -128,8 +144,20 @@
 			};
 
 			partition@760000 {
-				label = "tplink";
-				reg = <0x760000 0x090000>;
+				label = "soft-version";
+				reg = <0x760000 0x00b000>;
+				read-only;
+			};
+
+			partition@76b000 {
+				label = "support-list";
+				reg = <0x76b000 0x004000>;
+				read-only;
+			};
+
+			firmware2: partition@770000 {
+				label = "firmware2";
+				reg = <0x770000 0x080000>;
 				read-only;
 			};
 
