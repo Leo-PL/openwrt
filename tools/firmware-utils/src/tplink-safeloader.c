@@ -55,6 +55,7 @@
 
 
 #define MAX_PARTITIONS	32
+#define MAX_REGIONS 2
 
 /** An image partition table entry */
 struct image_partition_entry {
@@ -80,6 +81,11 @@ enum partition_trail_value {
 	PART_TRAIL_NONE = 0x100
 };
 
+struct sysupgrade_partition_region {
+	char *first;
+	char *last;
+};
+
 /** Firmware layout description */
 struct device_info {
 	const char *id;
@@ -89,8 +95,7 @@ struct device_info {
 	const char *soft_ver;
 	uint32_t soft_ver_compat_level;
 	struct flash_partition_entry partitions[MAX_PARTITIONS+1];
-	const char *first_sysupgrade_partition;
-	const char *last_sysupgrade_partition;
+	struct sysupgrade_partition_region sysupgrade_regions[MAX_REGIONS+1];
 };
 
 struct __attribute__((__packed__)) meta_header {
@@ -165,8 +170,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "support-list",
+		.sysupgrade_regions = {
+			{ "os-image", "support-list" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the CPE210 V2 */
@@ -206,8 +213,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "support-list",
+		.sysupgrade_regions = {
+			{ "os-image", "support-list" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the CPE210 V3 */
@@ -248,8 +257,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "support-list",
+		.sysupgrade_regions = {
+			{ "os-image", "support-list" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the CPE220 V2 */
@@ -288,8 +299,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "support-list",
+		.sysupgrade_regions = {
+			{ "os-image", "support-list" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the CPE220 V3 */
@@ -329,8 +342,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "support-list",
+		.sysupgrade_regions = {
+			{ "os-image", "support-list" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the CPE510/520 V1 */
@@ -367,8 +382,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "support-list",
+		.sysupgrade_regions = {
+			{ "os-image", "support-list" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the CPE510 V2 */
@@ -409,8 +426,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "support-list",
+		.sysupgrade_regions = {
+			{ "os-image", "support-list" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the CPE510 V3 */
@@ -454,8 +473,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "support-list",
+		.sysupgrade_regions = {
+			{ "os-image", "support-list" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the CPE610V1 */
@@ -494,8 +515,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "support-list",
+		.sysupgrade_regions = {
+			{ "os-image", "support-list" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the CPE610V2 */
@@ -534,8 +557,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "support-list",
+		.sysupgrade_regions = {
+			{ "os-image", "support-list" },
+			{ NULL, NULL }
+		},
 	},
 
 	{
@@ -566,8 +591,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "support-list",
+		.sysupgrade_regions = {
+			{ "os-image", "support-list" },
+			{ NULL, NULL }
+		},
 	},
 
 	{
@@ -598,8 +625,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "support-list",
+		.sysupgrade_regions = {
+			{ "os-image", "support-list" },
+			{ NULL, NULL }
+		},
 	},
 
 	{
@@ -631,8 +660,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "support-list",
+		.sysupgrade_regions = {
+			{ "os-image", "support-list" },
+			{ NULL, NULL }
+		},
 	},
 
 	{
@@ -664,8 +695,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "support-list",
+		.sysupgrade_regions = {
+			{ "os-image", "support-list" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the AD7200 */
@@ -708,8 +741,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system"
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the C2600 */
@@ -756,8 +791,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system"
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the A7-V5 */
@@ -797,8 +834,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system",
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the C2v3 */
@@ -835,8 +874,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system",
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the C25v1 */
@@ -873,8 +914,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system",
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the C58v1 */
@@ -907,8 +950,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system",
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the C59v1 */
@@ -946,8 +991,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system",
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the C59v2 */
@@ -986,8 +1033,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system",
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the Archer C6 v2 (EU/RU/JP) */
@@ -1021,8 +1070,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system",
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the Archer C6 v2 (US) and A6 v2 (US/TW) */
@@ -1056,8 +1107,10 @@ static struct device_info boards[] = {
 			{"radio", 0xff0000, 0x10000},
 			{NULL, 0, 0}
 		},
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system",
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the C60v1 */
@@ -1090,8 +1143,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system",
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the C60v2 */
@@ -1126,8 +1181,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system",
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the C60v3 */
@@ -1162,8 +1219,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system",
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the C5 */
@@ -1197,8 +1256,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system"
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the C7 */
@@ -1243,8 +1304,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system",
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the C7 v5*/
@@ -1291,8 +1354,10 @@ static struct device_info boards[] = {
 
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system",
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the C9 */
@@ -1326,8 +1391,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system"
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the EAP120 */
@@ -1356,8 +1423,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system"
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the EAP225-Outdoor v1 */
@@ -1385,8 +1454,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system"
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the EAP225 v3 */
@@ -1414,8 +1485,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system"
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the EAP225-Wall v2 */
@@ -1443,8 +1516,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system"
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the EAP235-Wall v1 */
@@ -1472,8 +1547,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system"
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the EAP245 v1 */
@@ -1498,8 +1575,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system"
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the EAP245 v3 */
@@ -1530,8 +1609,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system"
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the TL-WA850RE v2 */
@@ -1573,8 +1654,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system"
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the TL-WA855RE v1 */
@@ -1612,8 +1695,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system"
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the TL-WPA8630P v2 (EU)*/
@@ -1647,8 +1732,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system"
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the TL-WPA8630P v2 (INT)*/
@@ -1684,8 +1771,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system"
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the TL-WPA8630P v2.1 (EU)*/
@@ -1719,8 +1808,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system"
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the TL-WR1043 v5 */
@@ -1754,8 +1845,10 @@ static struct device_info boards[] = {
 			{"radio", 0xff0000, 0x10000},
 			{NULL, 0, 0}
 		},
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system"
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the TL-WR1043 v4 */
@@ -1786,8 +1879,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system"
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the TL-WR902AC v1 */
@@ -1822,8 +1917,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system",
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the TL-WR942N V1 */
@@ -1858,8 +1955,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system",
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
   /** Firmware layout for the RE200 v2 */
@@ -1901,8 +2000,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system"
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
   /** Firmware layout for the RE200 v3 */
@@ -1945,8 +2046,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system"
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
   /** Firmware layout for the RE200 v4 */
@@ -1989,8 +2092,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system"
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the RE220 v2 */
@@ -2032,8 +2137,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system"
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
   /** Firmware layout for the RE305 v1 */
@@ -2068,8 +2175,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system"
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the RE350 v1 */
@@ -2105,8 +2214,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system"
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the RE350K v1 */
@@ -2137,8 +2248,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system"
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the RE355 */
@@ -2175,8 +2288,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system"
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the RE450 */
@@ -2213,8 +2328,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system"
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the RE450 v2 */
@@ -2252,8 +2369,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system"
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the RE450 v3 */
@@ -2292,8 +2411,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system"
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the RE500 */
@@ -2329,8 +2450,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system"
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	/** Firmware layout for the RE650 */
@@ -2366,8 +2489,10 @@ static struct device_info boards[] = {
 			{NULL, 0, 0}
 		},
 
-		.first_sysupgrade_partition = "os-image",
-		.last_sysupgrade_partition = "file-system"
+		.sysupgrade_regions = {
+			{ "os-image", "file-system" },
+			{ NULL, NULL }
+		},
 	},
 
 	{}
@@ -2717,10 +2842,10 @@ static void * generate_sysupgrade_image(struct device_info *info, const struct i
 
 	/** Find first and last partitions */
 	for (i = 0; info->partitions[i].name; i++) {
-		if (!strcmp(info->partitions[i].name, info->first_sysupgrade_partition)) {
+		if (!strcmp(info->partitions[i].name, info->sysupgrade_regions[0].first)) {
 			flash_first_partition = &info->partitions[i];
 			flash_first_partition_index = i;
-		} else if (!strcmp(info->partitions[i].name, info->last_sysupgrade_partition)) {
+		} else if (!strcmp(info->partitions[i].name, info->sysupgrade_regions[0].last)) {
 			flash_last_partition = &info->partitions[i];
 			flash_last_partition_index = i;
 		}
@@ -2731,7 +2856,7 @@ static void * generate_sysupgrade_image(struct device_info *info, const struct i
 
 	/** Find last partition from image to calculate needed size */
 	for (i = 0; image_parts[i].name; i++) {
-		if (!strcmp(image_parts[i].name, info->last_sysupgrade_partition)) {
+		if (!strcmp(image_parts[i].name, info->sysupgrade_regions[0].last)) {
 			image_last_partition = &image_parts[i];
 			break;
 		}
