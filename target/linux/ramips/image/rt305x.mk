@@ -924,3 +924,12 @@ define Device/zorlik_zl5900v2
   DEVICE_PACKAGES := kmod-usb-core kmod-usb-ohci kmod-usb2 kmod-ledtrig-netdev
 endef
 TARGET_DEVICES += zorlik_zl5900v2
+
+define Device/zte_mf283plus
+  DTS := ZTE-MF283+
+  IMAGE_SIZE := 15872k
+  DEVICE_TITLE := ZTE MF283+
+  DEVICE_PACKAGES := kmod-usb-ohci kmod-usb2 kmod-ledtrig-netdev \
+	kmod-usb-serial kmod-usb-serial-option kmod-usb-net-qmi-wwan uqmi
+endef
+TARGET_DEVICES += zte_mf283plus
