@@ -463,6 +463,20 @@ define Device/tl-wr710n-v2.1
 endef
 TARGET_DEVICES += tl-wr710n-v2.1
 
+define Device/tl-wr802n-v2-16m
+  $(Device/tplink-16mlzma)
+  DEVICE_TITLE := TP-LINK TL-WR802N v2 (16M)
+  BOARDNAME := TL-WR802N-v2
+  DEVICE_PROFILE := TLWR802
+  TPLINK_HWID := 0x08020002
+  TPLINK_HWREV := 2
+  IMAGES += factory-us.bin factory-eu.bin
+  IMAGE/factory-us.bin := append-rootfs | mktplinkfw factory -C US
+  IMAGE/factory-eu.bin := append-rootfs | mktplinkfw factory -C EU
+  SUPPORTED_DEVICES := tl-wr802n-v2
+endef
+TARGET_DEVICES += tl-wr802n-v2-16m
+
 define Device/tl-wr810n-v1
   $(Device/tplink-8mlzma)
   DEVICE_TITLE := TP-LINK TL-WR810N v1
