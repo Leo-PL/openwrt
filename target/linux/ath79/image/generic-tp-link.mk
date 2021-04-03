@@ -762,6 +762,21 @@ define Device/tplink_tl-wr710n-v2.1
 endef
 TARGET_DEVICES += tplink_tl-wr710n-v2.1
 
+define Device/tplink_tl-wr802n-v2-16m
+  $(Device/tplink-16mlzma)
+  SOC := qca9533
+  DEVICE_MODEL := TL-WR802N
+  DEVICE_VARIANT := v2 (16M)
+  DEVICE_PACKAGES := -swconfig
+  TPLINK_HWID := 0x08020002
+  TPLINK_HWREV := 2
+  SUPPORTED_DEVICES += tplink,tl-wr802n-v2 tl-wr802n-v2
+  IMAGES += factory-us.bin factory-eu.bin
+  IMAGE/factory-us.bin := tplink-v1-image factory -C US
+  IMAGE/factory-eu.bin := tplink-v1-image factory -C EU
+endef
+TARGET_DEVICES += tplink_tl-wr802n-v2-16m
+
 define Device/tplink_tl-wr810n-v1
   $(Device/tplink-8mlzma)
   SOC := qca9531
