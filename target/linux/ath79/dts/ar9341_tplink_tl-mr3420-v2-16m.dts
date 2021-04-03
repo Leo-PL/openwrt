@@ -1,0 +1,26 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+
+#include "ar9341_tplink_tl-mr3420-v2.dts"
+
+/ {
+	model = "TP-Link TL-MR3420 v2 (16M)";
+};
+
+&spi {
+	status = "okay";
+
+	flash@0 {
+		partitions {
+			partition@20000 {
+				reg = <0x020000 0xfd0000>;
+			};
+
+			/delete-node/ partition@3f0000;
+			art: partition@ff0000 {
+				reg = <0xff0000 0x10000>;
+				label = "art";
+				read-only;
+			};
+		};
+	};
+};
