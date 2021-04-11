@@ -2877,6 +2877,8 @@ static void usage(const char *argv0) {
 		"Options:\n"
 		"  -h              show this help\n"
 		"\n"
+		"Info about an image:\n"
+		"  -i <file>       input file to read from\n"
 		"Create a new image:\n"
 		"  -B <board>      create image for the board specified with <board>\n"
 		"  -k <file>       read kernel image from the file <file>\n"
@@ -3141,8 +3143,94 @@ static struct flash_partition_entry *find_partition(
 			return entries;
 	}
 
-	error(1, 0, "%s", error_msg);
+	if (error_msg) {
+		error(1, 0, "%s", error_msg);
+	}
+
 	return NULL;
+}
+
+static int firmware_info(const char *input)
+{
+	struct flash_partition_entry pointers[MAX_PARTITIONS] = { };
+	struct flash_partition_entry *e;
+	FILE *fp;
+	int i;
+
+	fp = fopen(input, "r");
+
+	if (read_partition_table(fp, 0x1014, pointers, MAX_PARTITIONS, 0)) {
+		error(1, 0, "Error can not read the partition table (fwup-ptn)");
+	}
+
+	printf("Firmware image partitions:\n");
+	printf("%-8s %-8s %s\n", "base", "size", "name");
+	for (i = 0; i < MAX_PARTITIONS; i++) {
+		e = &pointers[i];
+
+		if (!e->name && !e->base && !e->size)
+			continue;
+
+		printf("%08x %08x %s\n", e->base, e->size, e->name ? e->name : "");
+	}
+
+	e = find_partition(pointers, MAX_PARTITIONS, "soft-version", NULL);
+	if (e) {
+		struct soft_version s;
+
+		if (fseek(fp, 0x1014 + e->base + sizeof(struct meta_header), SEEK_SET))
+			error(1, errno, "Can not seek in the firmware");
+
+		if (fread(&s, sizeof(s), 1, fp) != 1)
+			error(1, errno, "Can not read fwup-ptn from the firmware");
+
+		printf("\n[Software version]\n");
+		printf("Version: %d.%d.%d\n", s.version_major, s.version_minor, s.version_patch);
+		printf("Date: %02x%02x-%02x-%02x\n", s.year_hi, s.year_lo, s.month, s.day);
+	}
+
+	e = find_partition(pointers, MAX_PARTITIONS, "support-list", NULL);
+	if (e) {
+		char buf[128];
+		size_t length;
+		size_t bytes;
+
+		if (fseek(fp, 0x1014 + e->base + sizeof(struct meta_header), SEEK_SET))
+			error(1, errno, "Can not seek in the firmware");
+
+		printf("\n[Support list]\n");
+		for (length = e->size - sizeof(struct meta_header); length; length -= bytes) {
+			bytes = fread(buf, 1, length > sizeof(buf) ? sizeof(buf) : length, fp);
+			if (bytes <= 0)
+				error(1, errno, "Can not read fwup-ptn from the firmware");
+
+			puts(buf);
+		}
+	}
+
+	e = find_partition(pointers, MAX_PARTITIONS, "partition-table", NULL);
+	if (e) {
+		struct flash_partition_entry parts[MAX_PARTITIONS] = { };
+
+		if (read_partition_table(fp, 0x1014 + e->base + 4, parts, MAX_PARTITIONS, 1)) {
+			error(1, 0, "Error can not read the partition table (partition)");
+		}
+
+		printf("\n[Partition table]\n");
+		printf("%-8s %-8s %s\n", "base", "size", "name");
+		for (i = 0; i < MAX_PARTITIONS; i++) {
+			e = &parts[i];
+
+			if (!e->name && !e->base && !e->size)
+				continue;
+
+			printf("%08x %08x %s\n", e->base, e->size, e->name ? e->name : "");
+		}
+	}
+
+	fclose(fp);
+
+	return 0;
 }
 
 static void write_ff(FILE *output_file, size_t size)
@@ -3224,7 +3312,7 @@ static void convert_firmware(const char *input, const char *output)
 }
 
 int main(int argc, char *argv[]) {
-	const char *board = NULL, *kernel_image = NULL, *rootfs_image = NULL, *output = NULL;
+	const char *info_image = NULL, *board = NULL, *kernel_image = NULL, *rootfs_image = NULL, *output = NULL;
 	const char *extract_image = NULL, *output_directory = NULL, *convert_image = NULL;
 	bool add_jffs2_eof = false, sysupgrade = false;
 	unsigned rev = 0;
@@ -3234,11 +3322,15 @@ int main(int argc, char *argv[]) {
 	while (true) {
 		int c;
 
-		c = getopt(argc, argv, "B:k:r:o:V:jSh:x:d:z:");
+		c = getopt(argc, argv, "i:B:k:r:o:V:jSh:x:d:z:");
 		if (c == -1)
 			break;
 
 		switch (c) {
+		case 'i':
+			info_image = optarg;
+			break;
+
 		case 'B':
 			board = optarg;
 			break;
@@ -3289,7 +3381,9 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	if (extract_image || output_directory) {
+	if (info_image) {
+		firmware_info(info_image);
+	} else if (extract_image || output_directory) {
 		if (!extract_image)
 			error(1, 0, "No factory/oem image given via -x <file>. Output directory is only valid with -x");
 		if (!output_directory)
