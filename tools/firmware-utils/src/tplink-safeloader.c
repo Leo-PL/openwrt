@@ -1919,6 +1919,7 @@ static struct device_info boards[] = {
 
 		.sysupgrade_regions = {
 			{ "os-image", "file-system" },
+			{ "profile", "log" },
 			{ NULL, NULL }
 		},
 	},
