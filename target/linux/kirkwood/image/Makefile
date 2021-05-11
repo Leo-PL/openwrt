@@ -372,6 +372,18 @@ define Device/seagate_goflexhome
 endef
 TARGET_DEVICES += seagate_goflexhome
 
+define Device/synology_ds211j
+  DEVICE_VENDOR := Synology
+  DEVICE_MODEL := DS211j
+  DEVICE_PACKAGES := kmod-ata-marvell-sata kmod-usb-storage kmod-fs-ext4 \
+	kmod-gpio-button-hotplug kmod-hwmon-gpio-fan kmod-rtc-s35390a
+  KERNEL_SIZE := 3328k
+  KERNEL_IS_IN_UBI :=
+  BLOCK_SIZE := 64k
+  IMAGES := sysupgrade.bin
+endef
+TARGET_DEVICES += synology_ds211j
+
 define Device/zyxel_nsa310b
   DEVICE_VENDOR := Zyxel
   DEVICE_MODEL := NSA310b

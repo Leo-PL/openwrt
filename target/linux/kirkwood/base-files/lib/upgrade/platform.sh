@@ -42,6 +42,10 @@ platform_do_upgrade() {
 	linksys,ea4500)
 		platform_do_upgrade_linksys "$1"
 		;;
+	synology,ds211j)
+		# TODO figure out boot
+		return 1
+		;;
 	*)
 		nand_do_upgrade "$1"
 		;;

@@ -31,6 +31,7 @@ kirkwood_setup_interfaces()
 	seagate,dockstar|\
 	seagate,goflexhome|\
 	seagate,goflexnet|\
+	synology,ds211j|\
 	zyxel,nsa310b|\
 	zyxel,nsa310s|\
 	zyxel,nsa325)

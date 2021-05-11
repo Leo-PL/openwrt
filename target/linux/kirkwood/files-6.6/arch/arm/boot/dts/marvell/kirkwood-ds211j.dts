@@ -1,0 +1,131 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Andrew Lunn <andrew@lunn.ch>
+ * Ben Peddell <klightspeed@killerwolves.net>
+ *
+ */
+
+/dts-v1/;
+
+#include "kirkwood.dtsi"
+#include "kirkwood-6281.dtsi"
+#include "kirkwood-synology.dtsi"
+
+/ {
+	model = "Synology DS211j";
+	compatible = "synology,ds211j", "marvell,kirkwood";
+
+	aliases {
+		led-boot = &led_alarm;
+		led-running = &led_alarm;
+		led-faisafe = &led_alarm;
+		led-upgrade = &led_alarm;
+	};
+
+	memory {
+		device_type = "memory";
+		reg = <0x00000000 0x8000000>;
+	};
+
+	chosen {
+		bootargs = "console=ttyS0,115200n8 earlyprintk";
+		stdout-path = &uart0;
+	};
+
+	ocp@f1000000 {
+		spi@10600 {
+			/delete-node/ m25p80@0;
+			flash@0 {
+				#address-cells = <1>;
+				#size-cells = <1>;
+				compatible = "st,m25p80", "jedec,spi-nor";
+				reg = <0>;
+				spi-max-frequency = <20000000>;
+				mode = <0>;
+
+				partitions {
+					compatible = "fixed-partitions";
+
+					partition@0 {
+						reg = <0x00000000 0x00080000>;
+						label = "u-boot";
+						read-only;
+					};
+
+					/* This combines stock kernel and rd.gz partitions */
+					partition@80000 {
+						compatible = "denx,uImage";
+						reg = <0x00080000 0x00340000>;
+						label = "kernel";
+					};
+
+					vendor: partition@3c0000 {
+						reg = <0x003c0000 0x00010000>;
+						label = "vendor";
+						read-only;
+						compatible = "nvmem-cells";
+						#address-cells = <1>;
+						#size-cells = <1>;
+
+						vendor_macaddr_0: macaddr@0 {
+							reg = <0x0 0x6>;
+						};
+					};
+
+					partition@3d0000 {
+						reg = <0x003d0000 0x00020000>;
+						label = "u-boot-env";
+						read-only;
+					};
+
+					partition@3f0000 {
+						reg = <0x003f0000 0x00010000>;
+						label = "FIS directory";
+						read-only;
+					};
+				};
+			};
+		};
+	};
+
+	gpio-fan-150-32-35 {
+		status = "okay";
+	};
+
+	gpio-leds-hdd-21-2 {
+		status = "okay";
+
+		hdd1-green {
+			linux,default-trigger = "ata1";
+		};
+
+		hdd2-green {
+			linux,default-trigger = "ata2";
+		};
+	};
+
+	led_alarm: gpio-leds-alarm-12 {
+		status = "okay";
+	};
+
+	/* TODO Confirm actual status LED mapping */
+
+	/* TODO Power, Copy LEDs and buttons */
+
+	/* TODO Reset button */
+
+	/* TODO check PHY LED mapping */
+
+	regulators-hdd-31 {
+		status = "okay";
+	};
+};
+
+&s35390a {
+	status = "okay";
+};
+
+&eth0 {
+	nvmem-cells = <&vendor_macaddr_0>;
+	nvmem-cell-names = "mac-address";
+};
