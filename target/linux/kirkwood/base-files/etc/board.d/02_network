@@ -25,6 +25,7 @@ case "$board" in
 "seagate,dockstar"|\
 "seagate,goflexhome"|\
 "seagate,goflexnet"|\
+"synology,ds211j"|\
 "zyxel,nsa310s")
 	ucidef_set_interface_lan "eth0" "dhcp"
 	;;
