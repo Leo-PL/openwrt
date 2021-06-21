@@ -1,0 +1,53 @@
+From 9f239fe6a6b9c47b860a577e7334e43464ab7f9e Mon Sep 17 00:00:00 2001
+From: Andrew Lunn <andrew@lunn.ch>
+Date: Fri, 12 Jan 2018 15:01:36 +0100
+Subject: [PATCH] net: phy: Have __phy_modify return 0 on success
+
+__phy_modify would return the old value of the register before it was
+modified. Thus on success, it does not return 0, but a positive value.
+Thus functions using phy_modify, which is a wrapper around
+__phy_modify, can start returning > 0 on success, rather than 0. As a
+result, breakage has been noticed in various places, where 0 was
+assumed.
+
+Code inspection does not find any current location where the return of
+the old value is currently used. So have __phy_modify return 0 on
+success. When there is a real need for the old value, either a new
+accessor can be added, or an additional parameter passed.
+
+Fixes: fea23fb591cc ("net: phy: convert read-modify-write to phy_modify()")
+Fixes: 2b74e5be17d2 ("net: phy: add phy_modify() accessor")
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Andrew Lunn <andrew@lunn.ch>
+Tested-by: Niklas Cassel <niklas.cassel@axis.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+---
+ drivers/net/phy/phy-core.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
+
+--- a/drivers/net/phy/phy-core.c
++++ b/drivers/net/phy/phy-core.c
+@@ -292,16 +292,15 @@ EXPORT_SYMBOL(phy_write_mmd);
+  */
+ int __phy_modify(struct phy_device *phydev, u32 regnum, u16 mask, u16 set)
+ {
+-	int ret, res;
++	int ret;
+ 
+ 	ret = __phy_read(phydev, regnum);
+-	if (ret >= 0) {
+-		res = __phy_write(phydev, regnum, (ret & ~mask) | set);
+-		if (res < 0)
+-			ret = res;
+-	}
++	if (ret < 0)
++		return ret;
+ 
+-	return ret;
++	ret = __phy_write(phydev, regnum, (ret & ~mask) | set);
++
++	return ret < 0 ? ret : 0;
+ }
+ EXPORT_SYMBOL_GPL(__phy_modify);
+ 

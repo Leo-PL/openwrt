@@ -1,0 +1,58 @@
+From 2b74e5be17d25fbca4be236a19efcd2ecae81cb2 Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@armlinux.org.uk>
+Date: Tue, 2 Jan 2018 10:58:53 +0000
+Subject: [PATCH] net: phy: add phy_modify() accessor
+
+Add phy_modify() convenience accessor to complement the mdiobus
+counterpart.
+
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+---
+ drivers/net/phy/phy-core.c | 23 +++++++++++++++++++++++
+ include/linux/phy.h        |  1 +
+ 2 files changed, 24 insertions(+)
+
+--- a/drivers/net/phy/phy-core.c
++++ b/drivers/net/phy/phy-core.c
+@@ -305,6 +305,29 @@ int __phy_modify(struct phy_device *phyd
+ }
+ EXPORT_SYMBOL_GPL(__phy_modify);
+ 
++/**
++ * phy_modify - Convenience function for modifying a given PHY register
++ * @phydev: the phy_device struct
++ * @regnum: register number to write
++ * @mask: bit mask of bits to clear
++ * @set: new value of bits set in mask to write to @regnum
++ *
++ * NOTE: MUST NOT be called from interrupt context,
++ * because the bus read/write functions may wait for an interrupt
++ * to conclude the operation.
++ */
++int phy_modify(struct phy_device *phydev, u32 regnum, u16 mask, u16 set)
++{
++	int ret;
++
++	mutex_lock(&phydev->mdio.bus->mdio_lock);
++	ret = __phy_modify(phydev, regnum, mask, set);
++	mutex_unlock(&phydev->mdio.bus->mdio_lock);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(phy_modify);
++
+ static int __phy_read_page(struct phy_device *phydev)
+ {
+ 	return phydev->drv->read_page(phydev);
+--- a/include/linux/phy.h
++++ b/include/linux/phy.h
+@@ -760,6 +760,7 @@ static inline int __phy_write(struct phy
+ }
+ 
+ int __phy_modify(struct phy_device *phydev, u32 regnum, u16 mask, u16 set);
++int phy_modify(struct phy_device *phydev, u32 regnum, u16 mask, u16 set);
+ 
+ /**
+  * phy_interrupt_is_valid - Convenience function for testing a given PHY irq
