@@ -20,6 +20,7 @@ proto_mbim_init_config() {
 	proto_config_add_string username
 	proto_config_add_string password
 	[ -e /proc/sys/net/ipv6 ] && proto_config_add_string ipv6
+	proto_config_add_string pdptype
 	proto_config_add_defaults
 }
 
@@ -28,9 +29,9 @@ _proto_mbim_setup() {
 	local tid=2
 	local ret
 
-	local device apn pincode delay auth username password allow_roaming allow_partner
+	local device apn pincode delay auth username password allow_roaming allow_partner pdptype
 	local ip4table ip6table $PROTO_DEFAULT_OPTIONS
-	json_get_vars device apn pincode delay auth username password allow_roaming allow_partner
+	json_get_vars device apn pincode delay auth username password allow_roaming allow_partner pdptype
 	json_get_vars ip4table ip6table $PROTO_DEFAULT_OPTIONS
 
 	[ ! -e /proc/sys/net/ipv6 ] && ipv6=0 || json_get_var ipv6 ipv6
@@ -151,8 +152,15 @@ _proto_mbim_setup() {
 	}
 	tid=$((tid + 1))
 
+	pdptype=$(echo "$pdptype" | awk '{print tolower($0)}')
+	[ "$ipv6" = 0 ] && pdptype="ipv4"
+
+	local req_pdptype="" # Pass "default" PDP type to umbim if unconfigured
+	[ "$pdptype" = "ipv4" -o "$pdptype" = "ipv6" -o "$pdptype" = "ipv4v6" ] && req_pdptype="$pdptype:"
+
+	local connect_state
 	echo "mbim[$$]" "Connect to network"
-	umbim $DBG -n -t $tid -d $device connect "$apn" "$auth" "$username" "$password" || {
+	connect_state=$(umbim $DBG -n -t $tid -d $device connect "$req_pdptype$apn" "$auth" "$username" "$password") || {
 		echo "mbim[$$]" "Failed to connect bearer"
 		tid=$((tid + 1))
 		umbim $DBG -t $tid -d "$device" disconnect
@@ -160,38 +168,43 @@ _proto_mbim_setup() {
 		return 1
 	}
 	tid=$((tid + 1))
+	echo "$connect_state"
+	local iptype="$(echo "$connect_state" | grep iptype: | awk '{print $4}')"
 
 	uci_set_state network $interface tid "$tid"
 
 	local zone="$(fw3 -q network "$interface" 2>/dev/null)"
 
-	echo "mbim[$$]" "Connected, starting DHCP"
+	echo "mbim[$$]" "Connected"
 	proto_init_update "$ifname" 1
 	proto_send_update "$interface"
 
-	json_init
-	json_add_string name "${interface}_4"
-	json_add_string ifname "@$interface"
-	json_add_string proto "dhcp"
-	[ -n "$zone" ] && json_add_string zone "$zone"
-	[ -n "$ip4table" ] && json_add_string ip4table "$ip4table"
-	proto_add_dynamic_defaults
-	json_close_object
-	ubus call network add_dynamic "$(json_dump)"
+	[ "$iptype" != "ipv6" ] && {
+		echo "mbim[$$]" "Starting DHCP"
+		json_init
+		json_add_string name "${interface}_4"
+		json_add_string ifname "@$interface"
+		json_add_string proto "dhcp"
+		[ -n "$zone" ] && json_add_string zone "$zone"
+		[ -n "$ip4table" ] && json_add_string ip4table "$ip4table"
+		proto_add_dynamic_defaults
+		json_close_object
+		ubus call network add_dynamic "$(json_dump)"
+	}
 
-	ret=$?
-	[ "$ipv6" = 0 ] && return ret
-
-	json_init
-	json_add_string name "${interface}_6"
-	json_add_string ifname "@$interface"
-	json_add_string proto "dhcpv6"
-	json_add_string extendprefix 1
-	[ -n "$zone" ] && json_add_string zone "$zone"
-	[ -n "$ip6table" ] && json_add_string ip6table "$ip6table"
-	proto_add_dynamic_defaults
-	json_close_object
-	ubus call network add_dynamic "$(json_dump)"
+	[ "$iptype" != "ipv4" ] && {
+		echo "mbim[$$]" "Starting DHCPv6"
+		json_init
+		json_add_string name "${interface}_6"
+		json_add_string ifname "@$interface"
+		json_add_string proto "dhcpv6"
+		json_add_string extendprefix 1
+		[ -n "$zone" ] && json_add_string zone "$zone"
+		[ -n "$ip6table" ] && json_add_string ip6table "$ip6table"
+		proto_add_dynamic_defaults
+		json_close_object
+		ubus call network add_dynamic "$(json_dump)"
+	}
 }
 
 proto_mbim_setup() {
