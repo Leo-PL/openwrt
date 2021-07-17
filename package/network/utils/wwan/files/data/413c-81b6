@@ -1,0 +1,5 @@
+{
+	"desc": "Sierra MC/EM7455 (Dell DW5811e) MBIM",
+	"type": "mbim"
+	"dhcp": 0
+}
