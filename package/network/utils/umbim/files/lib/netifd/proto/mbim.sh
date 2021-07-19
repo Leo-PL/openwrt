@@ -159,8 +159,10 @@ _proto_mbim_setup() {
 	proto_init_update "$ifname" 1
 	proto_send_update "$interface"
 
+	[ -z "$dhcp" ] && dhcp=1
+
 	[ "$iptype" != "ipv6" ] && {
-		if [ -z "$dhcp" -o "$dhcp" = 0 ]; then
+		if [ -n "$ipv4address" ]; then
 			json_init
 			json_add_string name "${interface}_4"
 			json_add_string ifname "@$interface"
@@ -176,7 +178,7 @@ _proto_mbim_setup() {
 			[ -n "$zone" ] && json_add_string zone "$zone"
 			json_close_object
 			ubus call network add_dynamic "$(json_dump)"
-		else
+		elif [ "$dhcp" != 0 ]; then
 			echo "mbim[$$]" "Starting DHCP on $ifname"
 			json_init
 			json_add_string name "${interface}_4"
@@ -190,7 +192,7 @@ _proto_mbim_setup() {
 	}
 
 	[ "$iptype" != "ipv4" ] && {
-		if [ -z "$dhcp" -o "$dhcp" = 0 ]; then
+		if [ -n "$ipv6address" ]; then
 			json_init
 			json_add_string name "${interface}_6"
 			json_add_string ifname "@$interface"
@@ -206,7 +208,7 @@ _proto_mbim_setup() {
 			[ -n "$zone" ] && json_add_string zone "$zone"
 			json_close_object
 			ubus call network add_dynamic "$(json_dump)"
-		else
+		elif [ "$dhcp" != 0 ]; then
 			echo "mbim[$$]" "Starting DHCPv6 on $ifname"
 			json_init
 			json_add_string name "${interface}_6"
