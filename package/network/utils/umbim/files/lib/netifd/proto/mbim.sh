@@ -161,6 +161,8 @@ _proto_mbim_setup() {
 
 	uci_set_state network $interface tid "$tid"
 
+	local zone="$(fw3 -q network "$interface" 2>/dev/null)"
+
 	echo "mbim[$$]" "Connected, starting DHCP"
 	proto_init_update "$ifname" 1
 	proto_send_update "$interface"
@@ -169,6 +171,7 @@ _proto_mbim_setup() {
 	json_add_string name "${interface}_4"
 	json_add_string ifname "@$interface"
 	json_add_string proto "dhcp"
+	[ -n "$zone" ] && json_add_string zone "$zone"
 	proto_add_dynamic_defaults
 	json_close_object
 	ubus call network add_dynamic "$(json_dump)"
@@ -181,6 +184,7 @@ _proto_mbim_setup() {
 	json_add_string ifname "@$interface"
 	json_add_string proto "dhcpv6"
 	json_add_string extendprefix 1
+	[ -n "$zone" ] && json_add_string zone "$zone"
 	proto_add_dynamic_defaults
 	json_close_object
 	ubus call network add_dynamic "$(json_dump)"
