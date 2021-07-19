@@ -136,7 +136,7 @@ _proto_mbim_setup() {
 
 	local connect_state
 	echo "mbim[$$]" "Connect to network"
-	connect_state=$(umbim $DBG -n -t $tid -d $device connect "$req_pdptype:$apn" "$auth" "$username" "$password") || {
+	connect_state=$(umbim $DBG -n -t $tid -d $device connect "$req_pdptype$apn" "$auth" "$username" "$password") || {
 		echo "mbim[$$]" "Failed to connect bearer"
 		tid=$((tid + 1))
 		umbim $DBG -t $tid -d "$device" disconnect
@@ -150,7 +150,7 @@ _proto_mbim_setup() {
 
 	echo "mbim[$$]" "Connected"
 
-	if [ "$dhcp" = 0 ]; then
+	if [ -z "$dhcp" -o "$dhcp" = 0 ]; then
 		echo "mbim[$$]" "Setting up $ifname"
 		eval $(umbim $DBG -n -t $tid -d $device config | sed 's/: /=/g')
 		tid=$((tid + 1))
