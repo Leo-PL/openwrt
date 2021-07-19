@@ -159,7 +159,7 @@ _proto_mbim_setup() {
 			json_close_array
 			json_add_string gateway "$ipv4gateway"
 			json_add_array dns
-			json_add_string "" "$ipv4dnsserver"
+			[ "$peerdns" = 0 ] || json_add_string "" "$ipv4dnsserver"
 			json_close_array
 			proto_add_dynamic_defaults
 			json_close_object
@@ -176,7 +176,7 @@ _proto_mbim_setup() {
 			json_close_array
 			json_add_string ip6gw "$ipv6gateway"
 			json_add_array dns
-			json_add_string "" "$ipv6dnsserver"
+			[ "$peerdns" = 0 ] || json_add_string "" "$ipv6dnsserver"
 			json_close_array
 			proto_add_dynamic_defaults
 			json_close_object
