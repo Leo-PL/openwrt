@@ -19,6 +19,7 @@ proto_mbim_init_config() {
 	proto_config_add_string auth
 	proto_config_add_string username
 	proto_config_add_string password
+	[ -e /proc/sys/net/ipv6 ] && proto_config_add_string ipv6
 	proto_config_add_defaults
 }
 
@@ -29,6 +30,8 @@ _proto_mbim_setup() {
 
 	local device apn pincode delay auth username password allow_roaming allow_partner $PROTO_DEFAULT_OPTIONS
 	json_get_vars device apn pincode delay auth username password allow_roaming allow_partner $PROTO_DEFAULT_OPTIONS
+
+	[ ! -e /proc/sys/net/ipv6 ] && ipv6=0 || json_get_var ipv6 ipv6
 
 	[ -n "$ctl_device" ] && device=$ctl_device
 
@@ -169,6 +172,9 @@ _proto_mbim_setup() {
 	proto_add_dynamic_defaults
 	json_close_object
 	ubus call network add_dynamic "$(json_dump)"
+
+	ret=$?
+	[ "$ipv6" = 0 ] && return ret
 
 	json_init
 	json_add_string name "${interface}_6"
