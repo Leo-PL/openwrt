@@ -28,8 +28,10 @@ _proto_mbim_setup() {
 	local tid=2
 	local ret
 
-	local device apn pincode delay auth username password dhcp pdptype $PROTO_DEFAULT_OPTIONS
-	json_get_vars device apn pincode delay auth username password dhcp pdptype $PROTO_DEFAULT_OPTIONS
+	local device apn pincode delay auth username password dhcp pdptype
+	local ip4table ip6table $PROTO_DEFAULT_OPTIONS
+	json_get_vars device apn pincode delay auth username password dhcp pdptype
+	json_get_vars ip4table ip6table $PROTO_DEFAULT_OPTIONS
 
 	[ ! -e /proc/sys/net/ipv6 ] && ipv6=0 || json_get_var ipv6 ipv6
 
@@ -171,6 +173,7 @@ _proto_mbim_setup() {
 			json_close_array
 			proto_add_dynamic_defaults
 			[ -n "$zone" ] && json_add_string zone "$zone"
+			[ -n "$ip4table" ] && json_add_string ip4table "$ip4table"
 			json_close_object
 			ubus call network add_dynamic "$(json_dump)"
 		elif [ "$dhcp" != 0 ]; then
@@ -181,6 +184,7 @@ _proto_mbim_setup() {
 			json_add_string proto "dhcp"
 			proto_add_dynamic_defaults
 			[ -n "$zone" ] && json_add_string zone "$zone"
+			[ -n "$ip4table" ] && json_add_string ip4table "$ip4table"
 			json_close_object
 			ubus call network add_dynamic "$(json_dump)"
 		fi
@@ -201,6 +205,7 @@ _proto_mbim_setup() {
 			json_close_array
 			proto_add_dynamic_defaults
 			[ -n "$zone" ] && json_add_string zone "$zone"
+			[ -n "$ip6table" ] && json_add_string ip6table "$ip6table"
 			json_close_object
 			ubus call network add_dynamic "$(json_dump)"
 		elif [ "$dhcp" != 0 ]; then
@@ -212,6 +217,7 @@ _proto_mbim_setup() {
 			json_add_string extendprefix 1
 			proto_add_dynamic_defaults
 			[ -n "$zone" ] && json_add_string zone "$zone"
+			[ -n "$ip6table" ] && json_add_string ip6table "$ip6table"
 			json_close_object
 			ubus call network add_dynamic "$(json_dump)"
 		fi
