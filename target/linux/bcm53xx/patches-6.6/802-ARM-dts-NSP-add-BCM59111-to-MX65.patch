@@ -1,0 +1,26 @@
+From: Matthew Hagan <mnhagan88@gmail.com>
+Date: Sun, 5 Mar 2021 23:53:14 +0000
+Subject: bcm53xx: add BCM59111 to MX65
+
+Add the bcm59111 to the mx65 dts file.
+
+Signed-off-by: Matthew Hagan <mnhagan88@gmail.com>
+---
+
+--- a/arch/arm/boot/dts/broadcom/bcm958625-meraki-alamo.dtsi
++++ b/arch/arm/boot/dts/broadcom/bcm958625-meraki-alamo.dtsi
+@@ -499,3 +499,14 @@
+ 		};
+ 	};
+ };
++
++&i2c0 {
++       bcm59111@21 {
++               compatible = "brcm,bcm59111";
++               pagesize = <32>;
++               reg = <0x21>;
++               ports = <2>;
++               port_base = <0>;
++               max_power_mw = <60000>;
++       };
++};
