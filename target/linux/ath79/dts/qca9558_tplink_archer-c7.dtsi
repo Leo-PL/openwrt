@@ -153,6 +153,38 @@
 			0x7c 0x0000007e /* PORT0_STATUS */
 			0x94 0x0000007e /* PORT6 STATUS */
 			>;
+
+		leds {
+			led@0 {
+				reg = <0>;
+				label = "tp-link:green:wan";
+				qca,led-mode = <0>;
+			};
+
+			led@3 {
+				reg = <3>;
+				label = "tp-link:green:lan1";
+				qca,led-mode = <0>;
+			};
+
+			led@6 {
+				reg = <6>;
+				label = "tp-link:green:lan2";
+				qca,led-mode = <0>;
+			};
+
+			led@9 {
+				reg = <9>;
+				label = "tp-link:green:lan3";
+				qca,led-mode = <0>;
+			};
+
+			led@12 {
+				reg = <12>;
+				label = "tp-link:green:lan4";
+				qca,led-mode = <0>;
+			};
+		};
 	};
 };
 
