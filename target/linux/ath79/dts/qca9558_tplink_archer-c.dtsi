@@ -2,6 +2,7 @@
 
 #include "qca955x.dtsi"
 
+#include <dt-bindings/leds/common.h>
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/input.h>
 
@@ -222,6 +223,90 @@
 
 			phy_port5: phy@4 {
 				reg = <4>;
+			};
+		};
+
+		leds {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			phy@0 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				reg = <0>;
+
+				wan_led {
+					reg = <0>;
+					default-state = "keep";
+					color = <LED_COLOR_ID_GREEN>;
+					function = LED_FUNCTION_WAN;
+					qca,led_rules = "tx-blink", "rx-blink", "link-10M", "link-100M", "link-1000M", "half-duplex", "full-duplex", "linkup-over", "blink-auto";
+				};
+			};
+
+			phy@1 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				reg = <1>;
+
+				lan1_led {
+					reg = <0>;
+					default-state = "keep";
+					color = <LED_COLOR_ID_GREEN>;
+					function = LED_FUNCTION_LAN;
+					function-enumerator = <1>;
+					qca,led_rules = "tx-blink", "rx-blink", "link-10M", "link-100M", "link-1000M", "half-duplex", "full-duplex", "linkup-over", "blink-auto";
+				};
+			};
+
+			phy@2 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				reg = <2>;
+
+				lan2_led {
+					reg = <0>;
+					default-state = "keep";
+					color = <LED_COLOR_ID_GREEN>;
+					function = LED_FUNCTION_LAN;
+					function-enumerator = <2>;
+					qca,led_rules = "tx-blink", "rx-blink", "link-10M", "link-100M", "link-1000M", "half-duplex", "full-duplex", "linkup-over", "blink-auto";
+				};
+			};
+
+			phy@3 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				reg = <3>;
+
+				lan3_led {
+					reg = <0>;
+					default-state = "keep";
+					color = <LED_COLOR_ID_GREEN>;
+					function = LED_FUNCTION_LAN;
+					function-enumerator = <3>;
+					qca,led_rules = "tx-blink", "rx-blink", "link-10M", "link-100M", "link-1000M", "half-duplex", "full-duplex", "linkup-over", "blink-auto";
+				};
+			};
+
+			phy@4 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				reg = <4>;
+
+				lan4_led {
+					reg = <0>;
+					default-state = "keep";
+					color = <LED_COLOR_ID_GREEN>;
+					function = LED_FUNCTION_LAN;
+					function-enumerator = <4>;
+					qca,led_rules = "tx-blink", "rx-blink", "link-10M", "link-100M", "link-1000M", "half-duplex", "full-duplex", "linkup-over", "blink-auto";
+				};
 			};
 		};
 	};
