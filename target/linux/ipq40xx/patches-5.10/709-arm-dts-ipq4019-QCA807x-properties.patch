@@ -20,7 +20,7 @@ Signed-off-by: Robert Marko <robert.marko@sartura.hr>
  
  / {
  	#address-cells = <1>;
-@@ -645,22 +646,39 @@
+@@ -723,22 +724,39 @@
  
  			ethphy0: ethernet-phy@0 {
  				reg = <0>;
