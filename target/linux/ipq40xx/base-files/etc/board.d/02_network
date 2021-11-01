@@ -12,11 +12,20 @@ ipq40xx_setup_interfaces()
 
 	case "$board" in
 	8dev,habanero-dvk|\
-	avm,fritzbox-4040)
+	avm,fritzbox-4040|\
+	asus,rt-ac58u|\
+	linksys,ea6350v3|\
+	zyxel,nbg6617)
 		ucidef_set_interfaces_lan_wan "lan1 lan2 lan3 lan4" "wan"
 		;;
 	8dev,jalapeno)
 		ucidef_set_interfaces_lan_wan "lan" "wan"
+		;;
+	avm,fritzbox-7530)
+		ucidef_set_interfaces_lan "lan1 lan2 lan3 lan4"
+		;;
+	glinet,gl-b1300)
+		ucidef_set_interfaces_lan_wan "lan1 lan2" "wan"
 		;;
 	alfa-network,ap120c-ac|\
 	engenius,emr3500|\
@@ -60,17 +69,14 @@ ipq40xx_setup_interfaces()
 			"0t@eth0" "4:lan" "5:wan"
 		;;
 	asus,rt-ac42u|\
-	asus,rt-ac58u|\
 	mikrotik,hap-ac2|\
 	mikrotik,hap-ac3|\
 	p2w,r619ac-64m|\
-	p2w,r619ac-128m|\
-	zyxel,nbg6617)
+	p2w,r619ac-128m)
 		ucidef_set_interfaces_lan_wan "eth0" "eth1"
 		ucidef_add_switch "switch0" \
 			"0u@eth0" "1:lan:4" "2:lan:3" "3:lan:2" "4:lan:1"
 		;;
-	linksys,ea6350v3|\
 	linksys,ea8300)
 		ucidef_set_interfaces_lan_wan "eth0" "eth1"
 		ucidef_add_switch "switch0" \
@@ -80,10 +86,6 @@ ipq40xx_setup_interfaces()
 		ucidef_set_interfaces_lan_wan "eth0" "eth1"
 		ucidef_add_switch "switch0" \
 			"0u@eth0" "1:lan" "2:lan" "3:lan" "4:lan" "0u@eth1" "5:wan"
-		;;
-	avm,fritzbox-7530)
-		ucidef_add_switch "switch0" \
-			"0u@eth0" "1:lan:4" "2:lan:3" "3:lan:2" "4:lan:1"
 		;;
 	avm,fritzrepeater-3000)
 		ucidef_add_switch "switch0" \
@@ -113,7 +115,6 @@ ipq40xx_setup_interfaces()
 			"0u@eth0" "2:lan:3" "3:lan:2" "4:lan:1" "0u@eth1" "5:wan"
 		;;
 	glinet,gl-ap1300 |\
-	glinet,gl-b1300 |\
 	glinet,gl-s1300)
 		ucidef_set_interfaces_lan_wan "eth0" "eth1"
 		ucidef_add_switch "switch0" \
