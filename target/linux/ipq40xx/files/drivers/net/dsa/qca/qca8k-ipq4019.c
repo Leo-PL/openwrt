@@ -592,9 +592,28 @@ static void
 qca8k_phylink_mac_config(struct dsa_switch *ds, int port, unsigned int mode,
 			 const struct phylink_link_state *state)
 {
-	/* Nothing to configure
+	struct qca8k_priv *priv = ds->priv;
+
+	/* Only RGMII configuration here.
 	 * TODO: Look into moving PHY calibration here
 	 */
+	switch (port) {
+	case 0:
+	case 1:
+	case 2:
+	case 3:
+		/* TODO: Move PSGMII config and calibration here */
+		return;
+	case 4:
+	case 5:
+		if (state->interface == PHY_INTERFACE_MODE_RGMII) {
+			qca8k_reg_set(priv, QCA8K_REG_RGMII_CTRL, QCA8K_RGMII_CTRL_CLK);
+		}
+		return;
+	default:
+		dev_err(ds->dev, "%s: unsupported port: %i\n", __func__, port);
+		return;
+	}
 }
 
 static void
@@ -612,10 +631,15 @@ qca8k_phylink_validate(struct dsa_switch *ds, int port,
 	case 1:
 	case 2:
 	case 3:
+		/* Only PSGMII mode is supported */
+		if (state->interface != PHY_INTERFACE_MODE_PSGMII)
+			goto unsupported;
+		break;
 	case 4:
 	case 5:
-		/* User ports, only PSGMII mode is supported for now */
-		if (state->interface != PHY_INTERFACE_MODE_PSGMII)
+		/* PSGMII and RGMII modes are supported */
+		if (state->interface != PHY_INTERFACE_MODE_PSGMII &&
+		    state->interface != PHY_INTERFACE_MODE_RGMII)
 			goto unsupported;
 		break;
 	default:
@@ -1537,9 +1561,6 @@ ar40xx_mac_mode_init(struct qca8k_priv *priv)
 
 		psgmii_write(priv, AR40XX_PSGMII_MODE_CONTROL, 0x2200);
 		psgmii_write(priv, AR40XX_PSGMIIPHY_TX_CONTROL, 0x8380);
-		break;
-	case PORT_WRAPPER_RGMII:
-		qca8k_write(priv, AR40XX_REG_RGMII_CTRL, BIT(10));
 		break;
 	}
 }
