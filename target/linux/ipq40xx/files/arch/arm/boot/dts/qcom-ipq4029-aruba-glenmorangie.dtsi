@@ -21,7 +21,7 @@
 			pinctrl-0 = <&mdio_pins>;
 			pinctrl-names = "default";
 
-			ethernet-phy@5 {
+			ethphy: ethernet-phy@5 {
 				reg = <0x5>;
 			};
 		};
@@ -212,6 +212,28 @@
 			};
 		};
 	};
+};
+
+&gmac {
+	status = "okay";
+};
+
+&switch {
+	status = "okay";
+
+	/* TODO: Get rid of this completely, but
+	 * currently it needs to be != 0 for RGMII so that
+	 * PSGMII calibration doesnt get triggered.
+	 */
+	mac-mode = <3>;
+};
+
+&swport5 {
+	status = "okay";
+
+	label = "lan";
+	phy-handle = <&ethphy>;
+	phy-mode = "rgmii-id";
 };
 
 &ethphy0 {
