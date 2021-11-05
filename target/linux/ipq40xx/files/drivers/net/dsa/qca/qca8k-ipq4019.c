@@ -606,7 +606,10 @@ qca8k_phylink_mac_config(struct dsa_switch *ds, int port, unsigned int mode,
 		return;
 	case 4:
 	case 5:
-		if (state->interface == PHY_INTERFACE_MODE_RGMII) {
+		if (state->interface == PHY_INTERFACE_MODE_RGMII ||
+		    state->interface == PHY_INTERFACE_MODE_RGMII_ID ||
+		    state->interface == PHY_INTERFACE_MODE_RGMII_RXID ||
+		    state->interface == PHY_INTERFACE_MODE_RGMII_TXID) {
 			qca8k_reg_set(priv, QCA8K_REG_RGMII_CTRL, QCA8K_RGMII_CTRL_CLK);
 		}
 		return;
@@ -639,7 +642,10 @@ qca8k_phylink_validate(struct dsa_switch *ds, int port,
 	case 5:
 		/* PSGMII and RGMII modes are supported */
 		if (state->interface != PHY_INTERFACE_MODE_PSGMII &&
-		    state->interface != PHY_INTERFACE_MODE_RGMII)
+		    state->interface != PHY_INTERFACE_MODE_RGMII &&
+		    state->interface != PHY_INTERFACE_MODE_RGMII_ID &&
+		    state->interface != PHY_INTERFACE_MODE_RGMII_RXID &&
+		    state->interface != PHY_INTERFACE_MODE_RGMII_TXID)
 			goto unsupported;
 		break;
 	default:
