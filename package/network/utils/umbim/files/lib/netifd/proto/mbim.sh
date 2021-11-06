@@ -21,6 +21,7 @@ proto_mbim_init_config() {
 	proto_config_add_string password
 	[ -e /proc/sys/net/ipv6 ] && proto_config_add_string ipv6
 	proto_config_add_string pdptype
+	proto_config_add_int mtu
 	proto_config_add_defaults
 }
 
@@ -42,9 +43,9 @@ _proto_mbim_setup() {
 	local ret
 
 	local device apn pincode delay auth username password allow_roaming allow_partner pdptype
-	local ip4table ip6table $PROTO_DEFAULT_OPTIONS
+	local ip4table ip6table mtu $PROTO_DEFAULT_OPTIONS
 	json_get_vars device apn pincode delay auth username password allow_roaming allow_partner pdptype
-	json_get_vars ip4table ip6table $PROTO_DEFAULT_OPTIONS
+	json_get_vars ip4table ip6table mtu $PROTO_DEFAULT_OPTIONS
 
 	[ ! -e /proc/sys/net/ipv6 ] && ipv6=0 || json_get_var ipv6 ipv6
 
@@ -221,6 +222,19 @@ _proto_mbim_setup() {
 		proto_add_dynamic_defaults
 		json_close_object
 		ubus call network add_dynamic "$(json_dump)"
+	}
+
+	[ -z "$mtu" ] && {
+		local ipv4mtu=$(_proto_mbim_get_field ipv4mtu "$mbimconfig")
+		ipv4mtu="${ipv4mtu:-0}"
+		local ipv6mtu=$(_proto_mbim_get_field ipv6mtu "$mbimconfig")
+		ipv6mtu="${ipv6mtu:-0}"
+
+		mtu=$((ipv6mtu > ipv4mtu ? ipv6mtu : ipv4mtu))
+	}
+	[ -n "$mtu" -a "$mtu" != 0 ] && {
+		echo Setting MTU of $ifname to $mtu
+		/sbin/ip link set dev $ifname mtu $mtu
 	}
 }
 
