@@ -1527,11 +1527,6 @@ ar40xx_malibu_init(struct qca8k_priv *priv)
 	int i;
 	u16 val;
 
-	/* war to enable AZ transmitting ability */
-	qca8k_phy_mmd_write(priv, AR40XX_PSGMII_ID, 1,
-		      AR40XX_MALIBU_PSGMII_MODE_CTRL,
-		      AR40XX_MALIBU_PHY_PSGMII_MODE_CTRL_ADJUST_VAL);
-
 	for (i = 0; i < QCA8K_NUM_PORTS - 1; i++) {
 
 		/* change malibu control_dac */
