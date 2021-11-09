@@ -603,6 +603,11 @@ qca8k_phylink_mac_config(struct dsa_switch *ds, int port, unsigned int mode,
 	case 2:
 	case 3:
 		/* TODO: Move PSGMII config and calibration here */
+		if (state->interface == PHY_INTERFACE_MODE_PSGMII) {
+			regmap_clear_bits(priv->psgmii, IPQ4019_PSGMII_MODE_CONTROL,
+					  IPQ4019_PSGMII_MODE_ATHR_CSCO_MODE_25M);
+			regmap_write(priv->psgmii, IPQ4019_PSGMII_TX_CONTROL, 0x8380);
+		}
 		return;
 	case 4:
 	case 5:
@@ -611,6 +616,12 @@ qca8k_phylink_mac_config(struct dsa_switch *ds, int port, unsigned int mode,
 		    state->interface == PHY_INTERFACE_MODE_RGMII_RXID ||
 		    state->interface == PHY_INTERFACE_MODE_RGMII_TXID) {
 			qca8k_reg_set(priv, QCA8K_REG_RGMII_CTRL, QCA8K_RGMII_CTRL_CLK);
+		}
+
+		if (state->interface == PHY_INTERFACE_MODE_PSGMII) {
+			regmap_clear_bits(priv->psgmii, IPQ4019_PSGMII_MODE_CONTROL,
+					  IPQ4019_PSGMII_MODE_ATHR_CSCO_MODE_25M);
+			regmap_write(priv->psgmii, IPQ4019_PSGMII_TX_CONTROL, 0x8380);
 		}
 		return;
 	default:
@@ -1158,12 +1169,6 @@ enum ar40xx_port_wrapper_cfg {
 	PORT_WRAPPER_RGMII = 3,
 };
 
-#define AR40XX_PSGMII_MODE_CONTROL			0x1b4
-#define   AR40XX_PSGMII_ATHR_CSCO_MODE_25M		BIT(0)
-
-#define AR40XX_PSGMIIPHY_TX_CONTROL			0x288
-
-#define AR40XX_REG_RGMII_CTRL				0x0004
 #define AR40XX_REG_PORT_LOOKUP(_i)			(0x660 + (_i) * 0xc)
 #define   AR40XX_PORT_LOOKUP_LOOPBACK			BIT(21)
 
@@ -1559,9 +1564,6 @@ ar40xx_mac_mode_init(struct qca8k_priv *priv)
 		ar40xx_malibu_init(priv);
 		ar40xx_psgmii_self_test(priv);
 		ar40xx_psgmii_self_test_clean(priv);
-
-		psgmii_write(priv, AR40XX_PSGMII_MODE_CONTROL, 0x2200);
-		psgmii_write(priv, AR40XX_PSGMIIPHY_TX_CONTROL, 0x8380);
 		break;
 	}
 }
