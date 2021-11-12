@@ -183,6 +183,7 @@ tplink,tl-wa901nd-v4|\
 tplink,tl-wa901nd-v5)
 	ucidef_set_led_netdev "lan" "LAN" "tp-link:green:lan" "eth0"
 	;;
+tplink,tl-mr3220-v2|\
 tplink,tl-mr3420-v2|\
 tplink,tl-wr740n-v4|\
 tplink,tl-wr740n-v5|\

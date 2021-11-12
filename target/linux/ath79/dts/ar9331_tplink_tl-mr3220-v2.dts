@@ -1,0 +1,55 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+/dts-v1/;
+
+#include "ar9331_tplink_tl-wr741nd-v4.dtsi"
+
+/ {
+	model = "TP-Link TL-MR3220 v2";
+	compatible = "tplink,tl-mr3220-v2", "qca,ar9331";
+
+	keys {
+		/delete-node/ wps;
+
+		rfkill {
+			label = "rfkill";
+			linux,code = <KEY_RFKILL>;
+			gpios = <&gpio 24 GPIO_ACTIVE_HIGH>;
+			debounce-interval = <60>;
+		};
+	};
+
+	leds {
+		usb {
+			label = "tp-link:green:usb";
+			gpios = <&gpio 26 GPIO_ACTIVE_HIGH>;
+			trigger-sources = <&hub_port>;
+			linux,default-trigger = "usbport";
+		};
+	};
+
+	reg_usb_vbus: reg_usb_vbus {
+		compatible = "regulator-fixed";
+		regulator-name = "usb_vbus";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		gpio = <&gpio 8 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+	};
+};
+
+&usb {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	dr_mode = "host";
+	vbus-supply = <&reg_usb_vbus>;
+	status = "okay";
+
+	hub_port: port@1 {
+		reg = <1>;
+		#trigger-source-cells = <0>;
+	};
+};
+
+&usb_phy {
+	status = "okay";
+};
