@@ -233,6 +233,16 @@ define Device/tplink_re450-v2
 endef
 TARGET_DEVICES += tplink_re450-v2
 
+define Device/tplink_tl-mr3220-v2-16m
+  $(Device/tplink-16mlzma)
+  ATH_SOC := ar9331
+  DEVICE_TITLE := TP-Link TL-MR3220 v2 (16M)
+  TPLINK_HWID := 0x32200002
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb-chipidea2 kmod-usb-ledtrig-usbport
+  SUPPORTED_DEVICES += tplink,tl-mr3220-v2 tl-mr3220-v2
+endef
+TARGET_DEVICES += tplink_tl-mr3220-v2-16m
+
 define Device/tplink_tl-wdr3500-v1
   $(Device/tplink-8mlzma)
   ATH_SOC := ar9344
