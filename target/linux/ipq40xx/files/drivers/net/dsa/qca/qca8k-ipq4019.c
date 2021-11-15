@@ -599,6 +599,8 @@ qca8k_phylink_mac_config(struct dsa_switch *ds, int port, unsigned int mode,
 	 */
 	switch (port) {
 	case 0:
+		/* CPU port, no configuration needed */
+		return;
 	case 1:
 	case 2:
 	case 3:
