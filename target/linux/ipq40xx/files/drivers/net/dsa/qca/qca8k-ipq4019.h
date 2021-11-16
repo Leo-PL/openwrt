@@ -248,6 +248,7 @@ struct qca8k_priv {
 	struct delayed_work dsa_init;
 	u32 phy_t_status;
 	bool psgmii_calibrated;
+	struct phy_device *psgmii_ethphy;
 };
 
 struct qca8k_mib_desc {

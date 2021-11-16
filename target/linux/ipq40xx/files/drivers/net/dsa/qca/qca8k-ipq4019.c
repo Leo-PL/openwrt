@@ -1615,7 +1615,7 @@ qca8k_ipq4019_probe(struct platform_device *pdev)
 {
 	struct qca8k_priv *priv;
 	void __iomem *base, *psgmii;
-	struct device_node *np = pdev->dev.of_node, *mdio_np;
+	struct device_node *np = pdev->dev.of_node, *mdio_np, *psgmii_ethphy_np;
 	int ret;
 
 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
@@ -1677,6 +1677,19 @@ qca8k_ipq4019_probe(struct platform_device *pdev)
 	if (!priv->bus) {
 		dev_err(&pdev->dev, "unable to find MDIO bus\n");
 		return -EPROBE_DEFER;
+	}
+
+	psgmii_ethphy_np = of_parse_phandle(np, "psgmii-ethphy", 0);
+	if (!psgmii_ethphy_np) {
+		dev_err(&pdev->dev, "unable to get PSGMII eth PHY phandle\n");
+		of_node_put(psgmii_ethphy_np);
+		return -ENODEV;
+	}
+
+	priv->psgmii_ethphy = of_phy_find_device(psgmii_ethphy_np);
+	of_node_put(psgmii_ethphy_np);
+	if (!priv->psgmii_ethphy) {
+		return -ENODEV;
 	}
 
 	priv->ds = devm_kzalloc(priv->dev, sizeof(*priv->ds), GFP_KERNEL);
