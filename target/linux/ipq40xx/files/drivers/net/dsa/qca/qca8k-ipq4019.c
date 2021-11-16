@@ -593,9 +593,10 @@ static int ipq4019_psgmii_calibration(struct dsa_switch *ds, int port)
 	struct qca8k_priv *priv = ds->priv;
 
 	if (!priv->psgmii_calibrated) {
-		regmap_clear_bits(priv->psgmii, IPQ4019_PSGMII_MODE_CONTROL,
-				  IPQ4019_PSGMII_MODE_ATHR_CSCO_MODE_25M);
-		regmap_write(priv->psgmii, IPQ4019_PSGMII_TX_CONTROL, 0x8380);
+		regmap_clear_bits(priv->psgmii, PSGMIIPHY_MODE_CONTROL,
+				  PSGMIIPHY_MODE_ATHR_CSCO_MODE_25M);
+		regmap_write(priv->psgmii, PSGMIIPHY_TX_CONTROL,
+			     PSGMIIPHY_TX_CONTROL_MAGIC_VALUE);
 
 		priv->psgmii_calibrated = true;
 	}
