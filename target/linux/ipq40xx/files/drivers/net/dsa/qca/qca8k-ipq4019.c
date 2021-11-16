@@ -588,6 +588,21 @@ qca8k_setup(struct dsa_switch *ds)
 	return 0;
 }
 
+static int ipq4019_psgmii_calibration(struct dsa_switch *ds, int port)
+{
+	struct qca8k_priv *priv = ds->priv;
+
+	if (!priv->psgmii_calibrated) {
+		regmap_clear_bits(priv->psgmii, IPQ4019_PSGMII_MODE_CONTROL,
+				  IPQ4019_PSGMII_MODE_ATHR_CSCO_MODE_25M);
+		regmap_write(priv->psgmii, IPQ4019_PSGMII_TX_CONTROL, 0x8380);
+
+		priv->psgmii_calibrated = true;
+	}
+
+	return 0;
+}
+
 static void
 qca8k_phylink_mac_config(struct dsa_switch *ds, int port, unsigned int mode,
 			 const struct phylink_link_state *state)
@@ -605,11 +620,8 @@ qca8k_phylink_mac_config(struct dsa_switch *ds, int port, unsigned int mode,
 	case 2:
 	case 3:
 		/* TODO: Move PSGMII config and calibration here */
-		if (state->interface == PHY_INTERFACE_MODE_PSGMII) {
-			regmap_clear_bits(priv->psgmii, IPQ4019_PSGMII_MODE_CONTROL,
-					  IPQ4019_PSGMII_MODE_ATHR_CSCO_MODE_25M);
-			regmap_write(priv->psgmii, IPQ4019_PSGMII_TX_CONTROL, 0x8380);
-		}
+		if (state->interface == PHY_INTERFACE_MODE_PSGMII)
+			ipq4019_psgmii_calibration(ds, port);
 		return;
 	case 4:
 	case 5:
@@ -620,11 +632,8 @@ qca8k_phylink_mac_config(struct dsa_switch *ds, int port, unsigned int mode,
 			qca8k_reg_set(priv, QCA8K_REG_RGMII_CTRL, QCA8K_RGMII_CTRL_CLK);
 		}
 
-		if (state->interface == PHY_INTERFACE_MODE_PSGMII) {
-			regmap_clear_bits(priv->psgmii, IPQ4019_PSGMII_MODE_CONTROL,
-					  IPQ4019_PSGMII_MODE_ATHR_CSCO_MODE_25M);
-			regmap_write(priv->psgmii, IPQ4019_PSGMII_TX_CONTROL, 0x8380);
-		}
+		if (state->interface == PHY_INTERFACE_MODE_PSGMII)
+			ipq4019_psgmii_calibration(ds, port);
 		return;
 	default:
 		dev_err(ds->dev, "%s: unsupported port: %i\n", __func__, port);

@@ -247,6 +247,7 @@ struct qca8k_priv {
 	u32 mac_mode;
 	struct delayed_work dsa_init;
 	u32 phy_t_status;
+	bool psgmii_calibrated;
 };
 
 struct qca8k_mib_desc {
