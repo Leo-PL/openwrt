@@ -1669,6 +1669,7 @@ qca8k_ipq4019_probe(struct platform_device *pdev)
 	mdio_np = of_parse_phandle(np, "mdio", 0);
 	if (!mdio_np) {
 		dev_err(&pdev->dev, "unable to get MDIO bus phandle\n");
+		of_node_put(mdio_np);
 		return -EINVAL;
 	}
 
