@@ -1210,12 +1210,6 @@ psgmii_read(struct qca8k_priv *priv, int reg)
 }
 
 static void
-psgmii_write(struct qca8k_priv *priv, int reg, u32 val)
-{
-	regmap_write(priv->psgmii, reg, val);
-}
-
-static void
 qca8k_phy_mmd_write(struct qca8k_priv *priv, u32 phy_id,
 		     u16 mmd_num, u16 reg_id, u16 reg_val)
 {
@@ -1538,41 +1532,10 @@ ar40xx_psgmii_self_test_clean(struct qca8k_priv *priv)
 }
 
 static void
-ar40xx_malibu_init(struct qca8k_priv *priv)
-{
-	int i;
-	u16 val;
-
-	for (i = 0; i < QCA8K_NUM_PORTS - 1; i++) {
-
-		/* change malibu control_dac */
-		val = qca8k_phy_mmd_read(priv, i, 7, AR40XX_MALIBU_PHY_MMD7_DAC_CTRL);
-		val &= ~AR40XX_MALIBU_DAC_CTRL_MASK;
-		val |= AR40XX_MALIBU_DAC_CTRL_VALUE;
-		qca8k_phy_mmd_write(priv, i, 7, AR40XX_MALIBU_PHY_MMD7_DAC_CTRL, val);
-
-		if (i == AR40XX_MALIBU_PHY_LAST_ADDR) {
-			/* avoid PHY to get into hibernation */
-			val = qca8k_phy_mmd_read(priv, i, 3,
-						  AR40XX_MALIBU_PHY_RLP_CTRL);
-			val &= (~(1<<1));
-			qca8k_phy_mmd_write(priv, i, 3,
-					     AR40XX_MALIBU_PHY_RLP_CTRL, val);
-		}
-	}
-
-	/* adjust psgmii serdes tx amp */
-	mdiobus_write(priv->bus, AR40XX_PSGMII_ID,
-		      AR40XX_PSGMII_TX_DRIVER_1_CTRL,
-		      AR40XX_MALIBU_PHY_PSGMII_REDUCE_SERDES_TX_AMP);
-}
-
-static void
 ar40xx_mac_mode_init(struct qca8k_priv *priv)
 {
 	switch (priv->mac_mode) {
 	case PORT_WRAPPER_PSGMII:
-		ar40xx_malibu_init(priv);
 		ar40xx_psgmii_self_test(priv);
 		ar40xx_psgmii_self_test_clean(priv);
 		break;
