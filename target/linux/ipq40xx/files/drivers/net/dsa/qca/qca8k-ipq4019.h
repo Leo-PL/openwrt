@@ -202,6 +202,10 @@
 #define   PSGMIIPHY_MODE_ATHR_CSCO_MODE_25M		BIT(0)
 #define PSGMIIPHY_TX_CONTROL				0x288
 #define   PSGMIIPHY_TX_CONTROL_MAGIC_VALUE		0x8380
+#define PSGMIIPHY_VCO_CALIBRATION_CONTROL_REGISTER_1	0x9c
+#define   PSGMIIPHY_REG_PLL_VCO_CALIB_RESTART		BIT(14)
+#define PSGMIIPHY_VCO_CALIBRATION_CONTROL_REGISTER_2	0xa0
+#define   PSGMIIPHY_REG_PLL_VCO_CALIB_READY		BIT(0)
 
 enum {
 	QCA8K_PORT_SPEED_10M = 0,
@@ -245,9 +249,7 @@ struct qca8k_priv {
 	struct regmap *psgmii;
 	struct clk *ess_clk;
 	struct reset_control *ess_rst;
-	u32 mac_mode;
 	struct delayed_work dsa_init;
-	u32 phy_t_status;
 	bool psgmii_calibrated;
 	struct phy_device *psgmii_ethphy;
 };

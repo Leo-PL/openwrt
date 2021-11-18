@@ -588,17 +588,73 @@ qca8k_setup(struct dsa_switch *ds)
 	return 0;
 }
 
-static int ipq4019_psgmii_calibration(struct dsa_switch *ds, int port)
+static int psgmii_vco_calibrate(struct dsa_switch *ds)
 {
 	struct qca8k_priv *priv = ds->priv;
+	int val, ret;
+
+	/* Fix PSGMII RX 20bit */
+	ret = phy_write(priv->psgmii_ethphy, MII_BMCR, 0x5b);
+	/* Reset PSGMII PHY */
+	ret = phy_write(priv->psgmii_ethphy, MII_BMCR, 0x1b);
+	/* Release reset */
+	ret = phy_write(priv->psgmii_ethphy, MII_BMCR, 0x5b);
+
+	/* Poll for VCO PLL calibration finish */
+	ret = phy_read_mmd_poll_timeout(priv->psgmii_ethphy,
+					MDIO_MMD_PMAPMD,
+					0x28, val,
+					(val & BIT(0)),
+					10000, 1000000,
+					false);
+	if (ret) {
+		dev_err(ds->dev, "QCA807x PSGMII VCO calibration PLL not ready\n");
+		return ret;
+	}
+
+	/* Freeze PSGMII RX CDR */
+	ret = phy_write(priv->psgmii_ethphy, MII_RESV2, 0x2230);
+
+	/* Start PSGMIIPHY VCO PLL calibration */
+	ret = regmap_set_bits(priv->psgmii,
+			PSGMIIPHY_VCO_CALIBRATION_CONTROL_REGISTER_1,
+			PSGMIIPHY_REG_PLL_VCO_CALIB_RESTART);
+
+	/* Poll for PSGMIIPHY PLL calibration finish */
+	ret = regmap_read_poll_timeout(priv->psgmii,
+				       PSGMIIPHY_VCO_CALIBRATION_CONTROL_REGISTER_2,
+				       val, val & PSGMIIPHY_REG_PLL_VCO_CALIB_READY,
+				       10000, 1000000);
+	if (ret) {
+		dev_err(ds->dev, "PSGMIIPHY VCO calibration PLL not ready\n");
+		return ret;
+	}
+
+	/* Release PSGMII RX CDR */
+	ret = phy_write(priv->psgmii_ethphy, MII_RESV2, 0x3230);
+
+	/* Release PSGMII RX 20bit */
+	ret = phy_write(priv->psgmii_ethphy, MII_BMCR, 0x5f);
+
+	return ret;
+}
+
+static int ipq4019_psgmii_configure(struct dsa_switch *ds)
+{
+	struct qca8k_priv *priv = ds->priv;
+	int ret;
 
 	if (!priv->psgmii_calibrated) {
-		regmap_clear_bits(priv->psgmii, PSGMIIPHY_MODE_CONTROL,
-				  PSGMIIPHY_MODE_ATHR_CSCO_MODE_25M);
-		regmap_write(priv->psgmii, PSGMIIPHY_TX_CONTROL,
-			     PSGMIIPHY_TX_CONTROL_MAGIC_VALUE);
+		ret = psgmii_vco_calibrate(ds);
+
+		ret = regmap_clear_bits(priv->psgmii, PSGMIIPHY_MODE_CONTROL,
+					PSGMIIPHY_MODE_ATHR_CSCO_MODE_25M);
+		ret = regmap_write(priv->psgmii, PSGMIIPHY_TX_CONTROL,
+				   PSGMIIPHY_TX_CONTROL_MAGIC_VALUE);
 
 		priv->psgmii_calibrated = true;
+
+		return ret;
 	}
 
 	return 0;
@@ -610,9 +666,6 @@ qca8k_phylink_mac_config(struct dsa_switch *ds, int port, unsigned int mode,
 {
 	struct qca8k_priv *priv = ds->priv;
 
-	/* Only RGMII configuration here.
-	 * TODO: Look into moving PHY calibration here
-	 */
 	switch (port) {
 	case 0:
 		/* CPU port, no configuration needed */
@@ -620,9 +673,9 @@ qca8k_phylink_mac_config(struct dsa_switch *ds, int port, unsigned int mode,
 	case 1:
 	case 2:
 	case 3:
-		/* TODO: Move PSGMII config and calibration here */
 		if (state->interface == PHY_INTERFACE_MODE_PSGMII)
-			ipq4019_psgmii_calibration(ds, port);
+			if (ipq4019_psgmii_configure(ds))
+				dev_err(ds->dev, "PSGMII configuration failed!\n");
 		return;
 	case 4:
 	case 5:
@@ -634,7 +687,8 @@ qca8k_phylink_mac_config(struct dsa_switch *ds, int port, unsigned int mode,
 		}
 
 		if (state->interface == PHY_INTERFACE_MODE_PSGMII)
-			ipq4019_psgmii_calibration(ds, port);
+			if (ipq4019_psgmii_configure(ds))
+				dev_err(ds->dev, "PSGMII configuration failed!\n");
 		return;
 	default:
 		dev_err(ds->dev, "%s: unsupported port: %i\n", __func__, port);
@@ -1176,71 +1230,6 @@ static const struct dsa_switch_ops qca8k_switch_ops = {
 	.phylink_mac_link_up	= qca8k_phylink_mac_link_up,
 };
 
-enum ar40xx_port_wrapper_cfg {
-	PORT_WRAPPER_PSGMII = 0,
-	PORT_WRAPPER_RGMII = 3,
-};
-
-#define AR40XX_REG_PORT_LOOKUP(_i)			(0x660 + (_i) * 0xc)
-#define   AR40XX_PORT_LOOKUP_LOOPBACK			BIT(21)
-
-#define AR40XX_PHY_SPEC_STATUS				0x11
-#define   AR40XX_PHY_SPEC_STATUS_LINK			BIT(10)
-#define   AR40XX_PHY_SPEC_STATUS_DUPLEX			BIT(13)
-#define   AR40XX_PHY_SPEC_STATUS_SPEED			GENMASK(16, 14)
-
-#define AR40XX_PSGMII_ID				5
-#define AR40XX_PSGMII_CALB_NUM				100
-#define AR40XX_MALIBU_PSGMII_MODE_CTRL			0x6d
-#define AR40XX_MALIBU_PHY_PSGMII_MODE_CTRL_ADJUST_VAL	0x220c
-#define AR40XX_MALIBU_PHY_MMD7_DAC_CTRL			0x801a
-#define AR40XX_MALIBU_DAC_CTRL_MASK			0x380
-#define AR40XX_MALIBU_DAC_CTRL_VALUE			0x280
-#define AR40XX_MALIBU_PHY_RLP_CTRL			0x805a
-#define AR40XX_PSGMII_TX_DRIVER_1_CTRL			0xb
-#define AR40XX_MALIBU_PHY_PSGMII_REDUCE_SERDES_TX_AMP	0x8a
-#define AR40XX_MALIBU_PHY_LAST_ADDR			4
-
-static u32
-psgmii_read(struct qca8k_priv *priv, int reg)
-{
-	u32 val;
-
-	regmap_read(priv->psgmii, reg, &val);
-	return val;
-}
-
-static void
-qca8k_phy_mmd_write(struct qca8k_priv *priv, u32 phy_id,
-		     u16 mmd_num, u16 reg_id, u16 reg_val)
-{
-	struct mii_bus *bus = priv->bus;
-
-	mutex_lock(&bus->mdio_lock);
-	__mdiobus_write(bus, phy_id, MII_MMD_CTRL, mmd_num);
-	__mdiobus_write(bus, phy_id, MII_MMD_DATA, reg_id);
-	__mdiobus_write(bus, phy_id, MII_MMD_CTRL, MII_MMD_CTRL_NOINCR | mmd_num);
-	__mdiobus_write(bus, phy_id, MII_MMD_DATA, reg_val);
-	mutex_unlock(&bus->mdio_lock);
-}
-
-static u16
-qca8k_phy_mmd_read(struct qca8k_priv *priv, u32 phy_id,
-		    u16 mmd_num, u16 reg_id)
-{
-	struct mii_bus *bus = priv->bus;
-	u16 value;
-
-	mutex_lock(&bus->mdio_lock);
-	__mdiobus_write(bus, phy_id, MII_MMD_CTRL, mmd_num);
-	__mdiobus_write(bus, phy_id, MII_MMD_DATA, reg_id);
-	__mdiobus_write(bus, phy_id, MII_MMD_CTRL, MII_MMD_CTRL_NOINCR | mmd_num);
-	value = __mdiobus_read(bus, phy_id, MII_MMD_DATA);
-	mutex_unlock(&bus->mdio_lock);
-
-	return value;
-}
-
 static void
 ess_reset(struct qca8k_priv *priv)
 {
@@ -1254,293 +1243,6 @@ ess_reset(struct qca8k_priv *priv)
 	 * This takes between 5 and 10ms.
 	 */
 	mdelay(10);
-}
-
-static void
-ar40xx_malibu_psgmii_ess_reset(struct qca8k_priv *priv)
-{
-	struct mii_bus *bus = priv->bus;
-	u32 n;
-
-	/* Reset phy psgmii */
-	/* fix phy psgmii RX 20bit */
-	mdiobus_write(bus, AR40XX_PSGMII_ID, 0x0, 0x005b);
-	/* reset phy psgmii */
-	mdiobus_write(bus, AR40XX_PSGMII_ID, 0x0, 0x001b);
-	/* release reset phy psgmii */
-	mdiobus_write(bus, AR40XX_PSGMII_ID, 0x0, 0x005b);
-
-	for (n = 0; n < AR40XX_PSGMII_CALB_NUM; n++) {
-		u16 status;
-
-		status = qca8k_phy_mmd_read(priv, AR40XX_PSGMII_ID,
-					     MDIO_MMD_PMAPMD, 0x28);
-		if (status & BIT(0))
-			break;
-
-		/* Polling interval to check PSGMII PLL in malibu is ready
-		 * the worst time is 8.67ms
-		 * for 25MHz reference clock
-		 * [512+(128+2048)*49]*80ns+100us
-		 */
-		mdelay(2);
-	}
-
-	/* check malibu psgmii calibration done end... */
-
-	/* freeze phy psgmii RX CDR */
-	mdiobus_write(bus, AR40XX_PSGMII_ID, 0x1a, 0x2230);
-
-	ess_reset(priv);
-
-	/* wait for the psgmii calibration to complete */
-	for (n = 0; n < AR40XX_PSGMII_CALB_NUM; n++) {
-		u32 status;
-
-		status = psgmii_read(priv, 0xa0);
-		if (status & BIT(0))
-			break;
-
-		/* Polling interval to check PSGMII PLL in ESS is ready */
-		mdelay(2);
-	}
-
-	/* release phy psgmii RX CDR */
-	mdiobus_write(bus, AR40XX_PSGMII_ID, 0x1a, 0x3230);
-	/* release phy psgmii RX 20bit */
-	mdiobus_write(bus, AR40XX_PSGMII_ID, 0x0, 0x005f);
-}
-
-static void
-ar40xx_phytest_run(struct qca8k_priv *priv, int phy)
-{
-	/* enable check */
-	qca8k_phy_mmd_write(priv, phy, 7, 0x8029, 0x0000);
-	qca8k_phy_mmd_write(priv, phy, 7, 0x8029, 0x0003);
-
-	/* start traffic */
-	qca8k_phy_mmd_write(priv, phy, 7, 0x8020, 0xa000);
-
-	/* wait precisely for all traffic end
-	 * 4096(pkt num) * 1524(size) * 8ns (125MHz) = 49.9ms
-	 */
-	mdelay(50);
-}
-
-static bool
-ar40xx_phytest_check_counters(struct qca8k_priv *priv, int phy, u32 count)
-{
-	u32 tx_ok, tx_error;
-	u32 rx_ok, rx_error;
-	u32 tx_ok_high16;
-	u32 rx_ok_high16;
-	u32 tx_all_ok, rx_all_ok;
-
-	/* read counters */
-	tx_ok = qca8k_phy_mmd_read(priv, phy, 7, 0x802e);
-	tx_ok_high16 = qca8k_phy_mmd_read(priv, phy, 7, 0x802d);
-	tx_error = qca8k_phy_mmd_read(priv, phy, 7, 0x802f);
-	rx_ok = qca8k_phy_mmd_read(priv, phy, 7, 0x802b);
-	rx_ok_high16 = qca8k_phy_mmd_read(priv, phy, 7, 0x802a);
-	rx_error = qca8k_phy_mmd_read(priv, phy, 7, 0x802c);
-	tx_all_ok = tx_ok + (tx_ok_high16 << 16);
-	rx_all_ok = rx_ok + (rx_ok_high16 << 16);
-
-	if (tx_all_ok != count || tx_error != 0) {
-		dev_dbg(priv->dev,
-			"PHY%d tx_ok:%08x tx_err:%08x rx_ok:%08x rx_err:%08x\n",
-			phy, tx_all_ok, tx_error, rx_all_ok, rx_error);
-		return false;
-	}
-
-	return true;
-}
-
-static void
-ar40xx_check_phy_reset_status(struct qca8k_priv *priv, int phy)
-{
-	u16 bmcr;
-
-	bmcr = mdiobus_read(priv->bus, phy, MII_BMCR);
-	if (bmcr & BMCR_RESET)
-		dev_warn_once(priv->dev, "PHY %d reset is pending\n", phy);
-}
-
-static void
-ar40xx_psgmii_single_phy_testing(struct qca8k_priv *priv, int phy)
-{
-	struct mii_bus *bus = priv->bus;
-	int j;
-
-	mdiobus_write(bus, phy, MII_BMCR, BMCR_RESET | BMCR_ANENABLE);
-	ar40xx_check_phy_reset_status(priv, phy);
-
-	mdiobus_write(bus, phy, MII_BMCR, BMCR_LOOPBACK | BMCR_FULLDPLX |
-					  BMCR_SPEED1000);
-
-	for (j = 0; j < AR40XX_PSGMII_CALB_NUM; j++) {
-		u16 status;
-
-		status = mdiobus_read(bus, phy, AR40XX_PHY_SPEC_STATUS);
-		if (status & AR40XX_PHY_SPEC_STATUS_LINK)
-			break;
-
-		/* the polling interval to check if the PHY link up or not
-		  * maxwait_timer: 750 ms +/-10 ms
-		  * minwait_timer : 1 us +/- 0.1us
-		  * time resides in minwait_timer ~ maxwait_timer
-		  * see IEEE 802.3 section 40.4.5.2
-		  */
-		mdelay(8);
-	}
-
-	ar40xx_phytest_run(priv, phy);
-
-	/* check counter */
-	if (ar40xx_phytest_check_counters(priv, phy, 0x1000)) {
-		priv->phy_t_status &= (~BIT(phy));
-	} else {
-		dev_info(priv->dev, "PHY %d single test PSGMII issue happen!\n", phy);
-		priv->phy_t_status |= BIT(phy);
-	}
-
-	mdiobus_write(bus, phy, MII_BMCR, BMCR_ANENABLE | BMCR_PDOWN |
-					  BMCR_SPEED1000);
-}
-
-static void
-ar40xx_psgmii_all_phy_testing(struct qca8k_priv *priv)
-{
-	struct mii_bus *bus = priv->bus;
-	int phy, j;
-
-	mdiobus_write(bus, 0x1f, MII_BMCR, BMCR_RESET | BMCR_ANENABLE);
-	for (phy = 0; phy < QCA8K_NUM_PORTS - 1; phy++)
-		ar40xx_check_phy_reset_status(priv, phy);
-
-	mdiobus_write(bus, 0x1f, MII_BMCR, BMCR_LOOPBACK | BMCR_FULLDPLX |
-					   BMCR_SPEED1000);
-
-	for (j = 0; j < AR40XX_PSGMII_CALB_NUM; j++) {
-		for (phy = 0; phy < QCA8K_NUM_PORTS - 1; phy++) {
-			u16 status;
-
-			status = mdiobus_read(bus, phy, AR40XX_PHY_SPEC_STATUS);
-			if (!(status & AR40XX_PHY_SPEC_STATUS_LINK))
-				break;
-		}
-
-		if (phy >= (QCA8K_NUM_PORTS - 1))
-			break;
-		/* The polling interva to check if the PHY link up or not */
-		mdelay(8);
-	}
-
-	ar40xx_phytest_run(priv, 0x1f);
-
-	for (phy = 0; phy < QCA8K_NUM_PORTS - 1; phy++) {
-		if (ar40xx_phytest_check_counters(priv, phy, 4096)) {
-			/* success */
-			priv->phy_t_status &= ~BIT(phy + 8);
-		} else {
-			dev_info(priv->dev, "PHY%d test see issue!\n", phy);
-			priv->phy_t_status |= BIT(phy + 8);
-		}
-	}
-
-	dev_dbg(priv->dev, "PHY all test 0x%x \r\n", priv->phy_t_status);
-}
-
-static void
-ar40xx_psgmii_self_test(struct qca8k_priv *priv)
-{
-	struct mii_bus *bus = priv->bus;
-	u32 i, phy;
-
-	ar40xx_malibu_psgmii_ess_reset(priv);
-
-	/* switch to access MII reg for copper */
-	mdiobus_write(bus, 4, 0x1f, 0x8500);
-
-	for (phy = 0; phy < QCA8K_NUM_PORTS - 1; phy++) {
-		/*enable phy mdio broadcast write*/
-		qca8k_phy_mmd_write(priv, phy, 7, 0x8028, 0x801f);
-	}
-
-	/* force no link by power down */
-	mdiobus_write(bus, 0x1f, MII_BMCR, BMCR_ANENABLE | BMCR_PDOWN |
-					   BMCR_SPEED1000);
-
-	/* Setup packet generator for loopback calibration */
-	qca8k_phy_mmd_write(priv, 0x1f, 7, 0x8021, 0x1000); /* 4096 Packets */
-	qca8k_phy_mmd_write(priv, 0x1f, 7, 0x8062, 0x05e0); /* 1524 Bytes */
-
-	/* fix mdi status */
-	mdiobus_write(bus, 0x1f, 0x10, 0x6800);
-	for (i = 0; i < AR40XX_PSGMII_CALB_NUM; i++) {
-		priv->phy_t_status = 0;
-
-		for (phy = 0; phy < QCA8K_NUM_PORTS - 1; phy++) {
-			qca8k_rmw(priv, AR40XX_REG_PORT_LOOKUP(phy + 1),
-				AR40XX_PORT_LOOKUP_LOOPBACK,
-				AR40XX_PORT_LOOKUP_LOOPBACK);
-		}
-
-		for (phy = 0; phy < QCA8K_NUM_PORTS - 1; phy++)
-			ar40xx_psgmii_single_phy_testing(priv, phy);
-
-		ar40xx_psgmii_all_phy_testing(priv);
-
-		if (priv->phy_t_status)
-			ar40xx_malibu_psgmii_ess_reset(priv);
-		else
-			break;
-	}
-
-	if (i >= AR40XX_PSGMII_CALB_NUM)
-		dev_info(priv->dev, "PSGMII cannot recover\n");
-	else
-		dev_dbg(priv->dev, "PSGMII recovered after %d times reset\n", i);
-
-	/* configuration recover */
-	/* packet number */
-	qca8k_phy_mmd_write(priv, 0x1f, 7, 0x8021, 0x0);
-	/* disable check */
-	qca8k_phy_mmd_write(priv, 0x1f, 7, 0x8029, 0x0);
-	/* disable traffic */
-	qca8k_phy_mmd_write(priv, 0x1f, 7, 0x8020, 0x0);
-}
-
-static void
-ar40xx_psgmii_self_test_clean(struct qca8k_priv *priv)
-{
-	struct mii_bus *bus = priv->bus;
-	int phy;
-
-	/* disable phy internal loopback */
-	mdiobus_write(bus, 0x1f, 0x10, 0x6860);
-	mdiobus_write(bus, 0x1f, MII_BMCR, BMCR_ANENABLE | BMCR_RESET |
-					   BMCR_SPEED1000);
-
-	for (phy = 0; phy < QCA8K_NUM_PORTS - 1; phy++) {
-		/* disable mac loop back */
-		qca8k_rmw(priv, AR40XX_REG_PORT_LOOKUP(phy + 1),
-				AR40XX_PORT_LOOKUP_LOOPBACK, 0);
-
-		/* disable phy mdio broadcast write */
-		qca8k_phy_mmd_write(priv, phy, 7, 0x8028, 0x001f);
-	}
-}
-
-static void
-ar40xx_mac_mode_init(struct qca8k_priv *priv)
-{
-	switch (priv->mac_mode) {
-	case PORT_WRAPPER_PSGMII:
-		ar40xx_psgmii_self_test(priv);
-		ar40xx_psgmii_self_test_clean(priv);
-		break;
-	}
 }
 
 static void
@@ -1624,12 +1326,6 @@ qca8k_ipq4019_probe(struct platform_device *pdev)
 		return PTR_ERR(priv->ess_rst);
 	}
 
-	ret = of_property_read_u32(np, "mac-mode", &priv->mac_mode);
-	if (ret < 0) {
-		dev_err(&pdev->dev, "unable to get 'mac-mode' property\n");
-		return -EINVAL;
-	}
-
 	mdio_np = of_parse_phandle(np, "mdio", 0);
 	if (!mdio_np) {
 		dev_err(&pdev->dev, "unable to get MDIO bus phandle\n");
@@ -1673,8 +1369,6 @@ qca8k_ipq4019_probe(struct platform_device *pdev)
 	clk_prepare_enable(priv->ess_clk);
 
 	ess_reset(priv);
-
-	ar40xx_mac_mode_init(priv);
 
 	reset_control_put(priv->ess_rst);
 
