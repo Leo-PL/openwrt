@@ -25,7 +25,7 @@ ipq40xx_setup_interfaces()
 		ucidef_set_interface_lan "lan"
 		;;
 	avm,fritzbox-7530)
-		ucidef_set_interfaces_lan "lan1 lan2 lan3 lan4"
+		ucidef_set_interface_lan "lan1 lan2 lan3 lan4"
 		;;
 	glinet,gl-b1300)
 		ucidef_set_interfaces_lan_wan "lan1 lan2" "wan"
