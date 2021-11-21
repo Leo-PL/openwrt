@@ -21,7 +21,8 @@ ipq40xx_setup_interfaces()
 	8dev,jalapeno)
 		ucidef_set_interfaces_lan_wan "lan" "wan"
 		;;
-	aruba,ap-303)
+	aruba,ap-303|\
+	mikrotik,sxtsq-5-ac)
 		ucidef_set_interface_lan "lan"
 		;;
 	avm,fritzbox-7530)
@@ -46,7 +47,6 @@ ipq40xx_setup_interfaces()
 	engenius,emd1|\
 	meraki,mr33|\
 	mikrotik,lhgg-60ad|\
-	mikrotik,sxtsq-5-ac|\
 	netgear,ex6100v2|\
 	netgear,ex6150v2|\
 	zyxel,wre6606)
