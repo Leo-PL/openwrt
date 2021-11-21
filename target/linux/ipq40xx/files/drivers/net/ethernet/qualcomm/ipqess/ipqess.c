@@ -17,6 +17,7 @@
  */
 
 #include <linux/bitfield.h>
+#include <linux/clk.h>
 #include <linux/dsa/ipq4019.h>
 #include <linux/if_vlan.h>
 #include <linux/interrupt.h>
@@ -27,6 +28,7 @@
 #include <linux/of_net.h>
 #include <linux/phylink.h>
 #include <linux/platform_device.h>
+#include <linux/reset.h>
 #include <linux/skbuff.h>
 #include <linux/vmalloc.h>
 #include <net/checksum.h>
@@ -1153,6 +1155,20 @@ static void ipqess_cleanup(struct ipqess *ess)
 		phylink_destroy(ess->phylink);
 }
 
+static void ess_reset(struct ipqess *ess)
+{
+	reset_control_assert(ess->ess_rst);
+
+	mdelay(10);
+
+	reset_control_deassert(ess->ess_rst);
+
+	/* Waiting for all inner tables to be flushed and reinitialized.
+	 * This takes between 5 and 10ms.
+	 */
+	mdelay(10);
+}
+
 static int ipqess_axi_probe(struct platform_device *pdev)
 {
 	struct device_node *np = pdev->dev.of_node;
@@ -1180,6 +1196,22 @@ static int ipqess_axi_probe(struct platform_device *pdev)
 		err = PTR_ERR(ess->hw_addr);
 		goto err_out;
 	}
+
+	ess->ess_clk = of_clk_get_by_name(np, "ess_clk");
+	if (IS_ERR(ess->ess_clk)) {
+		dev_err(&pdev->dev, "Failed to get ess_clk\n");
+		return PTR_ERR(ess->ess_clk);
+	}
+
+	ess->ess_rst = devm_reset_control_get(&pdev->dev, "ess_rst");
+	if (IS_ERR(ess->ess_rst)) {
+		dev_err(&pdev->dev, "Failed to get ess_rst control!\n");
+		return PTR_ERR(ess->ess_rst);
+	}
+
+	clk_prepare_enable(ess->ess_clk);
+
+	ess_reset(ess);
 
 	ess->phylink_config.dev = &netdev->dev;
 	ess->phylink_config.type = PHYLINK_NETDEV;

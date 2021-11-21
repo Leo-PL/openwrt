@@ -172,6 +172,8 @@ struct ipqess_rx_ring_refill {
 struct ipqess {
 	struct net_device *netdev;
 	void __iomem *hw_addr;
+	struct clk *ess_clk;
+	struct reset_control *ess_rst;
 
 	struct ipqess_rx_ring rx_ring[IPQESS_NETDEV_QUEUES];
 
