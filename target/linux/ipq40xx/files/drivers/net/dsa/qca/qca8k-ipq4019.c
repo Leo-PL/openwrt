@@ -7,7 +7,6 @@
  * Copyright (c) 2021 Robert Marko <robert.marko@sartura.hr>
  */
 
-#include <linux/clk.h>
 #include <linux/etherdevice.h>
 #include <linux/if_bridge.h>
 #include <linux/mdio.h>
@@ -1235,52 +1234,6 @@ static const struct dsa_switch_ops qca8k_switch_ops = {
 	.phylink_mac_link_up	= qca8k_phylink_mac_link_up,
 };
 
-static void
-ess_reset(struct qca8k_priv *priv)
-{
-	reset_control_assert(priv->ess_rst);
-
-	mdelay(10);
-
-	reset_control_deassert(priv->ess_rst);
-
-	/* Waiting for all inner tables to be flushed and reinitialized.
-	 * This takes between 5 and 10ms.
-	 */
-	mdelay(10);
-}
-
-static void
-qca8k_dsa_init_work(struct work_struct *work)
-{
-	struct qca8k_priv *priv = container_of(work, struct qca8k_priv, dsa_init.work);
-	struct device *parent = priv->dev->parent;
-	int ret;
-
-	ret = dsa_register_switch(priv->ds);
-
-	switch (ret) {
-	case 0:
-		return;
-
-	case -EPROBE_DEFER:
-		dev_dbg(priv->dev, "dsa_register_switch defered.\n");
-		schedule_delayed_work(&priv->dsa_init, msecs_to_jiffies(200));
-		return;
-
-	default:
-		dev_err(priv->dev, "dsa_register_switch failed with (%d).\n", ret);
-		/* unbind anything failed */
-		if (parent)
-			device_lock(parent);
-
-		device_release_driver(priv->dev);
-		if (parent)
-			device_unlock(parent);
-		return;
-	}
-}
-
 static int
 qca8k_ipq4019_probe(struct platform_device *pdev)
 {
@@ -1317,18 +1270,6 @@ qca8k_ipq4019_probe(struct platform_device *pdev)
 		ret = PTR_ERR(priv->psgmii);
 		dev_err(priv->dev, "PSGMII regmap initialization failed, %d\n", ret);
 		return ret;
-	}
-
-	priv->ess_clk = of_clk_get_by_name(np, "ess_clk");
-	if (IS_ERR(priv->ess_clk)) {
-		dev_err(&pdev->dev, "Failed to get ess_clk\n");
-		return PTR_ERR(priv->ess_clk);
-	}
-
-	priv->ess_rst = devm_reset_control_get(&pdev->dev, "ess_rst");
-	if (IS_ERR(priv->ess_rst)) {
-		dev_err(&pdev->dev, "Failed to get ess_rst control!\n");
-		return PTR_ERR(priv->ess_rst);
 	}
 
 	mdio_np = of_parse_phandle(np, "mdio", 0);
@@ -1371,35 +1312,24 @@ qca8k_ipq4019_probe(struct platform_device *pdev)
 	mutex_init(&priv->reg_mutex);
 	platform_set_drvdata(pdev, priv);
 
-	clk_prepare_enable(priv->ess_clk);
+	return dsa_register_switch(priv->ds);
+}
 
-	ess_reset(priv);
+static int
+qca8k_ipq4019_remove(struct platform_device *pdev)
+{
+	struct qca8k_priv *priv = dev_get_drvdata(&pdev->dev);
+	int i;
 
-	reset_control_put(priv->ess_rst);
+	if (!priv)
+		return 0;
 
-	/* Ok. What's going on with the delayed dsa_switch_register?!
-	 *
-	 * On Bootup, this switch driver loads before the ethernet
-	 * driver. This causes a problem in dsa_register_switch when
-	 * it parses the tree and encounters the not-yet-ready
-	 * 	"ethernet = <&gmac>;" property.
-	 *
-	 * Which will err with -EPROBE_DEFER. Normally this should be
-	 * OK and the driver will just get loaded at a later time.
-	 * However, the EthernetSubSystem (ESS for short) really doesn't
-	 * like being resetted more than once in this fashion and will
-	 * "lock it up for good"... like "real good".
-	 *
-	 * So far, only a reboot can "unwedge" it, which is not what
-	 * we want.
-	 *
-	 * So this workaround (running dsa_register_switch in a
-	 * workqueue task) is employed to fix this unknown issue within
-	 * the SoC for now.
-	 */
+	for (i = 0; i < QCA8K_NUM_PORTS; i++)
+		qca8k_port_set_status(priv, i, 0);
 
-	INIT_DELAYED_WORK(&priv->dsa_init, qca8k_dsa_init_work);
-	schedule_delayed_work(&priv->dsa_init, msecs_to_jiffies(1000));
+	dsa_unregister_switch(priv->ds);
+
+	dev_set_drvdata(&pdev->dev, NULL);
 
 	return 0;
 }
@@ -1410,13 +1340,15 @@ static const struct of_device_id qca8k_ipq4019_of_match[] = {
 };
 
 static struct platform_driver qca8k_ipq4019_driver = {
+	.probe = qca8k_ipq4019_probe,
+	.remove = qca8k_ipq4019_remove,
 	.driver = {
 		.name = "qca8k-ipq4019",
 		.of_match_table = qca8k_ipq4019_of_match,
 	},
 };
 
-module_platform_driver_probe(qca8k_ipq4019_driver, qca8k_ipq4019_probe);
+module_platform_driver(qca8k_ipq4019_driver);
 
 MODULE_AUTHOR("Mathieu Olivari, John Crispin <john@phrozen.org>");
 MODULE_AUTHOR("Gabor Juhos <j4g8y7@gmail.com>, Robert Marko <robert.marko@sartura.hr>");

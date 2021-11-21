@@ -8,7 +8,6 @@
 #ifndef __QCA8K_H
 #define __QCA8K_H
 
-#include <linux/delay.h>
 #include <linux/regmap.h>
 
 #define QCA8K_NUM_PORTS					6
@@ -247,9 +246,6 @@ struct qca8k_priv {
 
 	/* IPQ4019 specific */
 	struct regmap *psgmii;
-	struct clk *ess_clk;
-	struct reset_control *ess_rst;
-	struct delayed_work dsa_init;
 	bool psgmii_calibrated;
 	struct phy_device *psgmii_ethphy;
 };
