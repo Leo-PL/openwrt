@@ -472,6 +472,12 @@ qca8k_setup_port(struct dsa_switch *ds, int port)
 				QCA8K_PORT_LOOKUP_MEMBER, dsa_user_ports(ds));
 		if (ret)
 			return ret;
+
+		/* Disable CPU ARP Auto-learning by default */
+		ret = qca8k_reg_clear(priv, QCA8K_PORT_LOOKUP_CTRL(QCA8K_CPU_PORT),
+				      QCA8K_PORT_LOOKUP_LEARN);
+		if (ret)
+			return ret;
 	}
 
 	/* Individual user ports get connected to CPU port only */
@@ -588,6 +594,9 @@ qca8k_setup(struct dsa_switch *ds)
 
 	/* We don't have interrupts for link changes, so we need to poll */
 	ds->pcs_poll = true;
+
+	/* CPU port HW learning doesnt work correctly, so let DSA handle it */
+	ds->assisted_learning_on_cpu_port = true;
 
 	return 0;
 }
