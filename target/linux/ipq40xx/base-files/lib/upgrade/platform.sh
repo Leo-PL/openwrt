@@ -25,6 +25,29 @@ Once this is done. Retry.
 EOF
 		return 1
 		;;
+	zte,mf286d)
+		CI_UBIPART="rootfs"
+		local mtdnum="$( find_mtd_index $CI_UBIPART )"
+		[ ! "$mtdnum" ] && return 1
+		ubiattach -m "$mtdnum" || true
+		local ubidev="$( nand_find_ubi $CI_UBIPART )"
+		local ubi_rootfs=$(nand_find_volume $ubidev ubi_rootfs)
+		local ubi_rootfs_data=$(nand_find_volume $ubidev ubi_rootfs_data)
+
+		[ -n "$ubi_rootfs" ] || [ -n "$ubi_rootfs_data" ] || return 0
+
+		cat << EOF
+ubi_rootfs partition is still present.
+
+You need to delete the stock partition first:
+# ubirmvol /dev/ubi0 -N ubi_rootfs
+Please also delete ubi_rootfs_data, if exist:
+# ubirmvol /dev/ubi0 -N ubi_rootfs_data
+
+Once this is done. Retry.
+EOF
+		return 1
+		;;
 	esac
 	return 0;
 }
@@ -75,6 +98,10 @@ platform_do_upgrade() {
 	openmesh,a62)
 		PART_NAME="inactive"
 		platform_do_upgrade_openmesh "$1"
+		;;
+	zte,mf286d)
+		CI_UBIPART="rootfs"
+		nand_do_upgrade "$1"
 		;;
 	zyxel,nbg6617)
 		zyxel_do_upgrade "$1"

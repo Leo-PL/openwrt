@@ -22,6 +22,11 @@ preinit_set_mac_address() {
 		base_mac=$(cat /sys/class/net/eth0/address)
 		ip link set dev eth0 address $(macaddr_add "$base_mac" +2)
 		ip link set dev eth1 address $(macaddr_add "$base_mac" +3)
+		;;
+	zte,mf286d)
+		base_mac=$(mtd_get_mac_binary mac 0)
+		[ -n "$base_mac" ] && ip link set dev eth0 address "$base_mac"
+		[ -n "$base_mac" ] && ip link set dev eth1 address $(macaddr_add "$base_mac" 1)
 	esac
 }
 

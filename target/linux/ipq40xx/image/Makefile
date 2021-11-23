@@ -387,6 +387,19 @@ define Device/qxwlan_e2600ac-c2
 endef
 TARGET_DEVICES += qxwlan_e2600ac-c2
 
+define Device/zte_mf286d
+	$(call Device/FitzImage)
+	DEVICE_DTS := qcom-ipq4019-mf286d
+	DEVICE_TITLE := ZTE MF286D
+	DEVICE_DTS_CONFIG := config@ap.dk04.1-c1
+	BLOCKSIZE := 128k
+	PAGESIZE := 2048
+	KERNEL_IN_UBI := 1
+	IMAGES := sysupgrade.bin
+	DEVICE_PACKAGES := ipq-wifi-zte_mf286d kmod-usb-net-qmi-wwan kmod-usb-serial-option uqmi
+endef
+TARGET_DEVICES += zte_mf286d
+
 define Device/zyxel_nbg6617
 	$(call Device/FitImageLzma)
 	DEVICE_DTS := qcom-ipq4018-nbg6617
