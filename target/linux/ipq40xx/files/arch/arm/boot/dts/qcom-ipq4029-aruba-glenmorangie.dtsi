@@ -221,11 +221,7 @@
 &switch {
 	status = "okay";
 
-	/* TODO: Get rid of this completely, but
-	 * currently it needs to be != 0 for RGMII so that
-	 * PSGMII calibration doesnt get triggered.
-	 */
-	mac-mode = <3>;
+	/delete-property/ psgmii-ethphy;
 };
 
 &swport5 {

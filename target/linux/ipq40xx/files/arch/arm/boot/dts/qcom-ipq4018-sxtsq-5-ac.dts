@@ -228,6 +228,8 @@
 
 &switch {
        status = "okay";
+
+       /delete-property/ psgmii-ethphy;
 };
 
 &swport5 {
