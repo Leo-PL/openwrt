@@ -606,6 +606,11 @@ static int psgmii_vco_calibrate(struct dsa_switch *ds)
 	struct qca8k_priv *priv = ds->priv;
 	int val, ret;
 
+	if (!priv->psgmii_ethphy) {
+		dev_err(ds->dev, "PSGMII eth PHY missing, calibration failed!\n");
+		return -ENODEV;
+	}
+
 	/* Fix PSGMII RX 20bit */
 	ret = phy_write(priv->psgmii_ethphy, MII_BMCR, 0x5b);
 	/* Reset PSGMII PHY */
@@ -1297,15 +1302,17 @@ qca8k_ipq4019_probe(struct platform_device *pdev)
 
 	psgmii_ethphy_np = of_parse_phandle(np, "psgmii-ethphy", 0);
 	if (!psgmii_ethphy_np) {
-		dev_err(&pdev->dev, "unable to get PSGMII eth PHY phandle\n");
+		dev_dbg(&pdev->dev, "unable to get PSGMII eth PHY phandle\n");
 		of_node_put(psgmii_ethphy_np);
-		return -ENODEV;
 	}
 
-	priv->psgmii_ethphy = of_phy_find_device(psgmii_ethphy_np);
-	of_node_put(psgmii_ethphy_np);
-	if (!priv->psgmii_ethphy) {
-		return -ENODEV;
+	if (psgmii_ethphy_np) {
+		priv->psgmii_ethphy = of_phy_find_device(psgmii_ethphy_np);
+		of_node_put(psgmii_ethphy_np);
+		if (!priv->psgmii_ethphy) {
+			dev_err(&pdev->dev, "unable to get PSGMII eth PHY\n");
+			return -ENODEV;
+		}
 	}
 
 	priv->ds = devm_kzalloc(priv->dev, sizeof(*priv->ds), GFP_KERNEL);
