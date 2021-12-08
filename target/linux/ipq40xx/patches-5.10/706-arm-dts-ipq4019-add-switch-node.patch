@@ -13,7 +13,7 @@ Signed-off-by: Robert Marko <robert.marko@sartura.hr>
 
 --- a/arch/arm/boot/dts/qcom-ipq4019.dtsi
 +++ b/arch/arm/boot/dts/qcom-ipq4019.dtsi
-@@ -589,6 +589,84 @@
+@@ -590,6 +590,82 @@
  			status = "disabled";
  		};
  
@@ -21,10 +21,8 @@ Signed-off-by: Robert Marko <robert.marko@sartura.hr>
 +			compatible = "qca,ipq4019-qca8337n";
 +			reg = <0xc000000 0x80000>, <0x98000 0x800>;
 +			reg-names = "base", "psgmii_phy";
-+			resets = <&gcc ESS_RESET>, <&gcc ESS_PSGMII_ARES>;
-+			reset-names = "ess_rst", "psgmii_rst";
-+			clocks = <&gcc GCC_ESS_CLK>;
-+			clock-names = "ess_clk";
++			resets = <&gcc ESS_PSGMII_ARES>;
++			reset-names = "psgmii_rst";
 +			mdio = <&mdio>;
 +			psgmii-ethphy = <&psgmiiphy>;
 +

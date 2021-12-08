@@ -21,13 +21,17 @@ Signed-off-by: Robert Marko <robert.marko@sartura.hr>
  	};
  
  	cpus {
-@@ -588,6 +589,53 @@
+@@ -589,6 +590,57 @@
  			status = "disabled";
  		};
  
 +		gmac: ethernet@c080000 {
 +			compatible = "qcom,ipq4019-ess-edma";
 +			reg = <0xc080000 0x8000>;
++			resets = <&gcc ESS_RESET>;
++			reset-names = "ess_rst";
++			clocks = <&gcc GCC_ESS_CLK>;
++			clock-names = "ess_clk";
 +			interrupts = <GIC_SPI  65 IRQ_TYPE_EDGE_RISING>,
 +				     <GIC_SPI  66 IRQ_TYPE_EDGE_RISING>,
 +				     <GIC_SPI  67 IRQ_TYPE_EDGE_RISING>,
