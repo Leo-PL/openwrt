@@ -22,6 +22,7 @@ ipq40xx_setup_interfaces()
 		ucidef_set_interfaces_lan_wan "lan" "wan"
 		;;
 	aruba,ap-303|\
+	meraki,mr33|\
 	mikrotik,sxtsq-5-ac)
 		ucidef_set_interface_lan "lan"
 		;;
@@ -45,7 +46,6 @@ ipq40xx_setup_interfaces()
 	dlink,dap-2610 |\
 	engenius,eap1300|\
 	engenius,emd1|\
-	meraki,mr33|\
 	mikrotik,lhgg-60ad|\
 	netgear,ex6100v2|\
 	netgear,ex6150v2|\
