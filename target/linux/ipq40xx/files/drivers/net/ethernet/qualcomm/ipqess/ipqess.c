@@ -591,16 +591,6 @@ static int __init ipqess_init(struct net_device *netdev)
 {
 	struct ipqess *ess = netdev_priv(netdev);
 	struct device_node *of_node = ess->pdev->dev.of_node;
-	int ret;
-
-	ret = of_get_mac_address(of_node, netdev->dev_addr);
-	if (ret) {
-		random_ether_addr(netdev->dev_addr);
-		dev_info(&ess->pdev->dev, "generated random MAC address %pM\n",
-			netdev->dev_addr);
-		netdev->addr_assign_type = NET_ADDR_RANDOM;
-	}
-
 	return phylink_of_phy_connect(ess->phylink, of_node, 0);
 }
 
@@ -1189,6 +1179,18 @@ static int ipqess_axi_probe(struct platform_device *pdev)
 	spin_lock_init(&ess->stats_lock);
 	SET_NETDEV_DEV(netdev, &pdev->dev);
 	platform_set_drvdata(pdev, netdev);
+
+	err = of_get_mac_address(np, netdev->dev_addr);
+	if (err == -EPROBE_DEFER)
+		return -EPROBE_DEFER;
+
+	if (err) {
+
+		random_ether_addr(netdev->dev_addr);
+		dev_info(&ess->pdev->dev, "generated random MAC address %pM\n",
+			netdev->dev_addr);
+		netdev->addr_assign_type = NET_ADDR_RANDOM;
+	}
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	ess->hw_addr = devm_ioremap_resource(&pdev->dev, res);
