@@ -4,6 +4,7 @@
 
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/input.h>
+#include <dt-bindings/leds/common.h>
 
 / {
 	compatible = "meraki,mr18", "qca,qca9558";
@@ -11,40 +12,60 @@
 
 	aliases {
 		label-mac-device = &eth0;
-		led-boot = &white;
-		led-failsafe = &orange;
-		led-running = &green;
-		led-upgrade = &white;
+		led-boot = &sys_green;
+		led-failsafe = &sys_red;
+		led-running = &sys_green;
+		led-upgrade = &pwr_orange;
 	};
 
 	leds {
 		compatible = "gpio-leds";
 
-		white: white {
+		white {
 			label = "white:power";
 			gpios = <&gpio 18 GPIO_ACTIVE_LOW>;
 		};
 
-		orange: orange {
+		pwr_orange: orange {
 			label = "orange:power";
 			gpios = <&gpio 21 GPIO_ACTIVE_HIGH>;
 			panic-indicator;
 		};
 	};
 
-	uleds {
-		compatible = "virtual-leds";
+	led-controller {
+		compatible = "numen,nu801";
 
-		green: green {
-			label = "green:tricolor";
-		};
+		cki-gpios = <&gpio 11 GPIO_ACTIVE_HIGH>;
+		sdi-gpios = <&gpio 12 GPIO_ACTIVE_HIGH>;
+		clock-delay-ns = <500>;
 
-		blue {
-			label = "blue:tricolor";
-		};
+		chip@0 {
+			reg = <0>;
 
-		red {
-			label = "red:tricolor";
+			chan@0 {
+				reg = <0>;
+				color = <LED_COLOR_ID_BLUE>;
+				function = LED_FUNCTION_INDICATOR;
+				label = "blue:tricolor";
+				default-state = "off";
+			};
+
+			sys_green: chan@1 {
+				reg = <1>;
+				color = <LED_COLOR_ID_GREEN>;
+				function = LED_FUNCTION_INDICATOR;
+				label = "green:tricolor";
+				default-state = "on";
+			};
+
+			sys_red: chan@2 {
+				reg = <2>;
+				color = <LED_COLOR_ID_RED>;
+				function = LED_FUNCTION_INDICATOR;
+				label = "red:tricolor";
+				default-state = "off";
+			};
 		};
 	};
 
