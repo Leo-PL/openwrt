@@ -110,14 +110,134 @@
 	status = "okay";
 
 	phy-mask = <0>;
-	phy0: ethernet-phy@0 {
-		reg = <0>;
-		phy-mode = "sgmii";
+	switch0@0 {
+		compatible = "qca,qca8337";
+		#address-cells = <1>;
+		#size-cells = <0>;
 
-		qca,ar8327-initvals = <
-			0x04 0x00080080 /* PORT0 PAD MODE CTRL */
-			0x7c 0x0000007e /* PORT0_STATUS */
-		>;
+		reg = <0>;
+		qca,sgmii-rxclk-falling-edge;
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			port@0 {
+				reg = <0>;
+				label = "cpu";
+				ethernet = <&eth0>;
+				phy-mode = "sgmii";
+				qca,sgmii-disable-pll;
+
+				fixed-link {
+					speed = <1000>;
+					full-duplex;
+				};
+			};
+
+			port@1 {
+				reg = <1>;
+				label = "lan4";
+				phy-mode = "internal";
+				phy-handle = <&phy_port1>;
+			};
+
+			port@2 {
+				reg = <2>;
+				label = "lan3";
+				phy-mode = "internal";
+				phy-handle = <&phy_port2>;
+			};
+
+			port@3 {
+				reg = <3>;
+				label = "lan2";
+				phy-mode = "internal";
+				phy-handle = <&phy_port3>;
+			};
+
+			port@5 {
+				reg = <5>;
+				label = "lan1";
+				phy-mode = "internal";
+				phy-handle = <&phy_port5>;
+			};
+		};
+
+		mdio {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			phy_port1: phy@0 {
+				reg = <0>;
+
+				leds {
+					#address-cells = <1>;
+					#size-cells = <0>;
+
+					led@0 {
+						reg = <0>;
+						default-state = "keep";
+						color = <LED_COLOR_ID_GREEN>;
+						function = LED_FUNCTION_LAN;
+						function-enumerator = <4>;
+						qca,led_rules = "tx-blink", "rx-blink", "link-10M", "link-100M", "link-1000M", "half-duplex", "full-duplex", "linkup-over", "blink-auto";
+					};
+				};
+			};
+
+			phy_port2: phy@1 {
+				reg = <1>;
+
+				leds {
+					#address-cells = <1>;
+					#size-cells = <0>;
+
+					led@0 {
+						reg = <0>;
+						default-state = "keep";
+						color = <LED_COLOR_ID_GREEN>;
+						function = LED_FUNCTION_LAN;
+						function-enumerator = <3>;
+						qca,led_rules = "tx-blink", "rx-blink", "link-10M", "link-100M", "link-1000M", "half-duplex", "full-duplex", "linkup-over", "blink-auto";
+					};
+				};
+			};
+
+			phy_port3: phy@2 {
+				reg = <2>;
+
+				leds {
+					#address-cells = <1>;
+					#size-cells = <0>;
+
+					led@0 {
+						reg = <0>;
+						default-state = "keep";
+						color = <LED_COLOR_ID_GREEN>;
+						function = LED_FUNCTION_LAN;
+						function-enumerator = <2>;
+						qca,led_rules = "tx-blink", "rx-blink", "link-10M", "link-100M", "link-1000M", "half-duplex", "full-duplex", "linkup-over", "blink-auto";
+					};
+				};
+			};
+
+			phy_port5: phy@4 {
+				reg = <4>;
+
+				leds {
+					#address-cells = <1>;
+					#size-cells = <0>;
+
+					led@0 {
+						reg = <0>;
+						default-state = "keep";
+						color = <LED_COLOR_ID_GREEN>;
+						function = LED_FUNCTION_LAN;
+						function-enumerator = <1>;
+						qca,led_rules = "tx-blink", "rx-blink", "link-10M", "link-100M", "link-1000M", "half-duplex", "full-duplex", "linkup-over", "blink-auto";
+					};
+				};
+			};
+		};
 	};
 };
 
@@ -125,7 +245,11 @@
 	status = "okay";
 
 	phy-mode = "sgmii";
-	phy-handle = <&phy0>;
+
+	fixed-link {
+		speed = <1000>;
+		full-duplex;
+	};
 };
 
 &pcie {
