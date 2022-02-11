@@ -217,7 +217,8 @@ _proto_mbim_setup() {
 
 			json_add_array ip6addr
 			for address in $ipv6address; do
-				json_add_string "" "$address"
+				local ipv6addr=${address%%/*}
+				json_add_string "" "$ipv6addr/128"
 			done
 			json_close_array
 
@@ -226,8 +227,6 @@ _proto_mbim_setup() {
 				json_add_string "" "$address"
 			done
 			json_close_array
-
-			json_add_string ip6gw $(_proto_mbim_get_field ipv6gateway "$mbimconfig")
 
 		elif [ "$dhcp" != 0 ]; then
 			echo "mbim[$$]" "Starting DHCPv6 on $ifname"
@@ -248,6 +247,17 @@ _proto_mbim_setup() {
 		[ -n "$ip6table" ] && json_add_string ip6table "$ip6table"
 		json_close_object
 		ubus call network add_dynamic "$(json_dump)"
+
+		if [ -n "$ipv6address" ]; then
+			proto_init_update "$ifname" 1
+			proto_set_keep 1
+			ipv6gateway=$(_proto_mbim_get_field ipv6gateway)
+			proto_add_ipv6_route "$ipv6gateway" "128"
+			[ "$defaultroute" = 0 ] || for address in $ipv6address; do
+				proto_add_ipv6_route "::0" "0" "$ipv6gateway" "" "" "$address"
+			done
+			proto_send_update "$interface_6"
+		fi
 	}
 
 	[ -z "$mtu" ] && {
