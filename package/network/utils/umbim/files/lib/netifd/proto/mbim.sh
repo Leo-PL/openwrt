@@ -27,7 +27,7 @@ _proto_mbim_setup() {
 	local tid=2
 	local ret
 
-	local device apn pincode delay allow_roaming allow_partner $PROTO_DEFAULT_OPTIONS
+	local device apn pincode delay auth username password allow_roaming allow_partner $PROTO_DEFAULT_OPTIONS
 	json_get_vars device apn pincode delay auth username password allow_roaming allow_partner $PROTO_DEFAULT_OPTIONS
 
 	[ -n "$ctl_device" ] && device=$ctl_device
