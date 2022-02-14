@@ -171,6 +171,11 @@ _proto_mbim_setup() {
 	echo "$connect_state"
 	local iptype="$(echo "$connect_state" | grep iptype: | awk '{print $4}')"
 
+	echo "mbim[$$]" "Setting up $ifname"
+	local mbimconfig="$(umbim $DBG -n -t $tid -d $device config)"
+	echo "$mbimconfig"
+	tid=$((tid + 1))
+
 	uci_set_state network $interface tid "$tid"
 
 	local zone="$(fw3 -q network "$interface" 2>/dev/null)"
