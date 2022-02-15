@@ -21,6 +21,7 @@ proto_mbim_init_config() {
 	proto_config_add_string password
 	[ -e /proc/sys/net/ipv6 ] && proto_config_add_string ipv6
 	proto_config_add_string pdptype
+	proto_config_add_string dhcp
 	proto_config_add_int mtu
 	proto_config_add_defaults
 }
@@ -43,9 +44,9 @@ _proto_mbim_setup() {
 	local ret
 
 	local device apn pincode delay auth username password allow_roaming allow_partner pdptype
-	local ip4table ip6table mtu $PROTO_DEFAULT_OPTIONS
+	local ip4table ip6table dhcp mtu $PROTO_DEFAULT_OPTIONS
 	json_get_vars device apn pincode delay auth username password allow_roaming allow_partner pdptype
-	json_get_vars ip4table ip6table mtu $PROTO_DEFAULT_OPTIONS
+	json_get_vars ip4table ip6table dhcp mtu $PROTO_DEFAULT_OPTIONS
 
 	[ ! -e /proc/sys/net/ipv6 ] && ipv6=0 || json_get_var ipv6 ipv6
 
@@ -198,16 +199,21 @@ _proto_mbim_setup() {
 	proto_send_update "$interface"
 
 	[ "$iptype" != "ipv6" ] && {
-		echo "mbim[$$]" "Starting DHCP"
-		json_init
-		json_add_string name "${interface}_4"
-		json_add_string ifname "@$interface"
-		json_add_string proto "dhcp"
-		[ -n "$zone" ] && json_add_string zone "$zone"
-		[ -n "$ip4table" ] && json_add_string ip4table "$ip4table"
-		proto_add_dynamic_defaults
-		json_close_object
-		ubus call network add_dynamic "$(json_dump)"
+		ipv4address=$(_proto_mbim_get_field ipv4address "$mbimconfig")
+		if [ -n "$ipv4address" -a "$dhcp" != "force" ]; then
+			#static configuration
+		elif [ "$dhcp" != "0" ]; then
+			echo "mbim[$$]" "Starting DHCP"
+			json_init
+			json_add_string name "${interface}_4"
+			json_add_string ifname "@$interface"
+			json_add_string proto "dhcp"
+			[ -n "$zone" ] && json_add_string zone "$zone"
+			[ -n "$ip4table" ] && json_add_string ip4table "$ip4table"
+			proto_add_dynamic_defaults
+			json_close_object
+			ubus call network add_dynamic "$(json_dump)"
+		fi
 	}
 
 	[ "$iptype" != "ipv4" ] && {
