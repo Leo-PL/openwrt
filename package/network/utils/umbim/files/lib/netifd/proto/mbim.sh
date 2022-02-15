@@ -147,10 +147,13 @@ _proto_mbim_setup() {
 	tid=$((tid + 1))
 
 	echo "mbim[$$]" "Connect to network"
-	while ! umbim $DBG -n -t $tid -d $device connect "$apn" "$auth" "$username" "$password"; do
+	umbim $DBG -n -t $tid -d $device connect "$apn" "$auth" "$username" "$password" || {
+		echo "mbim[$$]" "Failed to connect bearer"
 		tid=$((tid + 1))
-		sleep 1;
-	done
+		umbim $DBG -t $tid -d "$device" disconnect
+		proto_notify_error "$interface" CONNECT_FAILED
+		return 1
+	}
 	tid=$((tid + 1))
 
 	uci_set_state network $interface tid "$tid"
