@@ -572,6 +572,17 @@ define Device/tplink_tl-wdr4300-v1
 endef
 TARGET_DEVICES += tplink_tl-wdr4300-v1
 
+define Device/tplink_tl-wdr4300-v1-16m
+  $(Device/tplink-16mlzma)
+  SOC := ar9344
+  DEVICE_MODEL := TL-WDR4300
+  DEVICE_VARIANT := v1 (16M)
+  DEVICE_PACKAGES := kmod-usb2 kmod-usb-ledtrig-usbport
+  TPLINK_HWID := 0x43000001
+  SUPPORTED_DEVICES += tl-wdr4300 tplink,tl-wdr4300-v1
+endef
+TARGET_DEVICES += tplink_tl-wdr4300-v1-16m
+
 define Device/tplink_tl-wdr4300-v1-il
   $(Device/tplink-8mlzma)
   SOC := ar9344
