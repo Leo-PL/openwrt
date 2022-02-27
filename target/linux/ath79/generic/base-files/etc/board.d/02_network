@@ -147,7 +147,7 @@ ath79_setup_interfaces()
 	tplink,tl-wdr4900-v2|\
 	tplink,tl-wdr7500-v3)
 		ucidef_add_switch "switch0" \
-			"0@eth1" "2:lan" "3:lan" "4:lan" "5:lan" "6@eth0" "1:wan"
+			"0u@eth1" "2:lan" "3:lan" "4:lan" "5:lan" "6u@eth0" "1:wan"
 		;;
 	buffalo,bhr-4grv|\
 	buffalo,wzr-hp-g450h)
@@ -327,7 +327,7 @@ ath79_setup_interfaces()
 		;;
 	librerouter,librerouter-v1)
 		ucidef_add_switch "switch0" \
-			"0@eth0" "5:wan" "6@eth1" "4:lan"
+			"0u@eth0" "5:wan" "6u@eth1" "4:lan"
 		;;
 	meraki,mr12)
 		ucidef_set_interface_lan "eth0"
@@ -401,7 +401,7 @@ ath79_setup_interfaces()
 	qxwlan,e558-v2-8m|\
 	qxwlan,e558-v2-16m)
 		ucidef_add_switch "switch0" \
-			"0@eth1" "4:lan" "5:lan" "6@eth0" "3:wan"
+			"0u@eth1" "4:lan" "5:lan" "6u@eth0" "3:wan"
 		;;
 	rosinson,wr818)
 		ucidef_add_switch "switch0" \
@@ -420,7 +420,7 @@ ath79_setup_interfaces()
 	tplink,archer-d7-v1|\
 	tplink,archer-d7b-v1)
 		ucidef_add_switch "switch0" \
-			"0@eth1" "3:lan:3" "4:lan:2" "5:lan:1" "6@eth0" "2:wan:4" "1:wan:5"
+			"0u@eth1" "3:lan:3" "4:lan:2" "5:lan:1" "6u@eth0" "2:wan:4" "1:wan:5"
 		;;
 	tplink,eap225-wall-v2)
 		ucidef_add_switch "switch0" \
