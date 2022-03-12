@@ -11,6 +11,7 @@ proto_qmi_init_config() {
 	no_device=1
 	proto_config_add_string "device:device"
 	proto_config_add_string apn
+	proto_config_add_string v6apn
 	proto_config_add_string auth
 	proto_config_add_string username
 	proto_config_add_string password
@@ -19,6 +20,7 @@ proto_qmi_init_config() {
 	proto_config_add_string modes
 	proto_config_add_string pdptype
 	proto_config_add_int profile
+	proto_config_add_int v6profile
 	proto_config_add_boolean dhcpv6
 	proto_config_add_boolean autoconnect
 	proto_config_add_int plmn
@@ -30,14 +32,14 @@ proto_qmi_init_config() {
 proto_qmi_setup() {
 	local interface="$1"
 	local dataformat connstat
-	local device apn auth username password pincode delay modes pdptype
-	local profile dhcpv6 autoconnect plmn timeout mtu $PROTO_DEFAULT_OPTIONS
+	local device apn v6apn auth username password pincode delay modes pdptype
+	local profile v6profile dhcpv6 autoconnect plmn timeout mtu $PROTO_DEFAULT_OPTIONS
 	local ip4table ip6table
 	local cid_4 pdh_4 cid_6 pdh_6
 	local ip_6 ip_prefix_length gateway_6 dns1_6 dns2_6
 
-	json_get_vars device apn auth username password pincode delay modes
-	json_get_vars pdptype profile dhcpv6 autoconnect plmn ip4table
+	json_get_vars device apn v6apn auth username password pincode delay modes
+	json_get_vars pdptype profile v6profile dhcpv6 autoconnect plmn ip4table
 	json_get_vars ip6table timeout mtu $PROTO_DEFAULT_OPTIONS
 
 	[ "$timeout" = "" ] && timeout="10"
@@ -212,7 +214,7 @@ proto_qmi_setup() {
 	echo "Starting network $interface"
 
 	pdptype=$(echo "$pdptype" | awk '{print tolower($0)}')
-	[ "$pdptype" = "ip" -o "$pdptype" = "ipv6" -o "$pdptype" = "ipv4v6" ] || pdptype="ip"
+	[ "$pdptype" = "ip" -o "$pdptype" = "ipv6" -o "$pdptype" = "ipv4v6" -o "$pdptype" = "ipv4-and-ipv6" ] || pdptype="ip"
 
 	if [ "$pdptype" = "ip" ]; then
 		[ -z "$autoconnect" ] && autoconnect=1
@@ -221,7 +223,7 @@ proto_qmi_setup() {
 		[ "$autoconnect" = 1 ] || autoconnect=""
 	fi
 
-	[ "$pdptype" = "ip" -o "$pdptype" = "ipv4v6" ] && {
+	[ "$pdptype" != "ipv6" ] && {
 		cid_4=$(uqmi -s -d "$device" --get-client-id wds)
 		if ! [ "$cid_4" -eq "$cid_4" ] 2> /dev/null; then
 			echo "Unable to obtain client ID"
@@ -258,7 +260,7 @@ proto_qmi_setup() {
 		}
 	}
 
-	[ "$pdptype" = "ipv6" -o "$pdptype" = "ipv4v6" ] && {
+	[ "$pdptype" != "ip" ] && {
 		cid_6=$(uqmi -s -d "$device" --get-client-id wds)
 		if ! [ "$cid_6" -eq "$cid_6" ] 2> /dev/null; then
 			echo "Unable to obtain client ID"
@@ -268,10 +270,21 @@ proto_qmi_setup() {
 
 		uqmi -s -d "$device" --set-client-id wds,"$cid_6" --set-ip-family ipv6 > /dev/null 2>&1
 
+		local ipv6apn
+		local ipv6profile
+		if [ "$pdptype" = "ipv4-and-ipv6" ]; then
+			ipv6apn="$v6apn"
+			ipv6profile="$v6profile"
+			[ -z "$ipv6profile"] && ipv6profile="2"
+		else
+			ipv6apn="$apn"
+			ipv6profile="$profile"
+		fi
+
 		pdh_6=$(uqmi -s -d "$device" --set-client-id wds,"$cid_6" \
 			--start-network \
-			${apn:+--apn $apn} \
-			${profile:+--profile $profile} \
+			${ipv6apn:+--apn $ipv6apn} \
+			${ipv6profile:+--profile $ipv6profile} \
 			${auth:+--auth-type $auth} \
 			${username:+--username $username} \
 			${password:+--password $password} \
