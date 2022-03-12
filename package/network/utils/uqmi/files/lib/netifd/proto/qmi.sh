@@ -355,6 +355,7 @@ proto_qmi_setup() {
 			json_init
 			json_add_string name "${interface}_6"
 			json_add_string ifname "@$interface"
+			[ "$pdptype" = "ipv4v6" -o "$pdptype" = "ipv4-and-ipv6" ] && json_add_string iface_464xlat "0"
 			json_add_string proto "dhcpv6"
 			[ -n "$ip6table" ] && json_add_string ip6table "$ip6table"
 			proto_add_dynamic_defaults
