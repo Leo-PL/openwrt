@@ -87,6 +87,7 @@
 
 		ess-psgmii@98000 {
 			status = "okay";
+			/delete-node/ ethernet-phy@0;
 		};
 
 		tcsr@1949000 {
@@ -133,10 +134,13 @@
 
 		ess-switch@c000000 {
 			status = "okay";
+			switch_lan_bmp = <0x3c>;
+			switch_wan_bmp = <0x0>;
 		};
 
 		edma@c080000 {
 			status = "okay";
+			qcom,num_gmac = <1>;
 		};
 	};
 };
@@ -228,12 +232,14 @@
 &gmac0 {
 	nvmem-cell-names = "mac-address";
 	nvmem-cells = <&macaddr_config_0>;
+	vlan_tag = <0 0x3c>;
 };
 
 &gmac1 {
 	nvmem-cell-names = "mac-address";
 	nvmem-cells = <&macaddr_config_0>;
 	mac-address-increment = <1>;
+	status = "disabled";
 };
 
 &nand {
