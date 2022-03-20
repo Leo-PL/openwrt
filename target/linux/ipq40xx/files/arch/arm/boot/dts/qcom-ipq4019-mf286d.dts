@@ -346,10 +346,7 @@
 
 &swport5 {
 	status = "okay";
-	label = "wan";
-	nvmem-cell-names = "mac-address";
-	nvmem-cells = <&macaddr_config_0>;
-	mac-address-increment = <1>;
+	label = "lan1";
 };
 
 &tlmm {
