@@ -437,6 +437,7 @@ ubnt,powerbeam-5ac-gen2)
 	ucidef_set_led_rssi "rssihigh" "RSSIHIGH" "blue:rssi3" "wlan0" "76" "100"
 	;;
 ubnt,bullet-m-xw|\
+ubnt,nanobridge-m|\
 ubnt,nanostation-loco-m-xw|\
 ubnt,nanostation-m-xw|\
 ubnt,powerbeam-m2-xw|\

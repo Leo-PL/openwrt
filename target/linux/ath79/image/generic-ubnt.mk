@@ -94,6 +94,17 @@ define Device/ubnt_nanobeam-m5-xw
 endef
 TARGET_DEVICES += ubnt_nanobeam-m5-xw
 
+define Device/ubnt_nanobridge-m-16m
+  $(Device/ubnt-xm)
+  SOC := ar7241
+  DEVICE_MODEL := NanoBridge M
+  DEVICE_VARIANT := XM (16M)
+  DEVICE_PACKAGES += rssileds
+  IMAGE_SIZE := 15960k
+  SUPPORTED_DEVICES += bullet-m ubnt,nanobridge-m
+endef
+TARGET_DEVICES += ubnt_nanobridge-m-16m
+
 define Device/ubnt_nanostation-ac
   $(Device/ubnt-wa)
   DEVICE_MODEL := Nanostation AC
