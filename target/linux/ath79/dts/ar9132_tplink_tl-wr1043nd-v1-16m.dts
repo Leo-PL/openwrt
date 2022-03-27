@@ -1,0 +1,25 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/dts-v1/;
+
+#include "ar9132_tplink_tl-wr1043nd-v1.dts"
+
+/ {
+	model = "TP-Link TL-WR1043ND v1 (16M)";
+};
+
+&spi {
+	flash@0 {
+		partitions {
+			partition@20000 {
+				reg = <0x020000 0xFD0000>;
+			};
+
+			/delete-node/ partition@7F0000;
+			art: partition@FF0000 {
+				label = "art";
+				reg = <0xFF0000 0x010000>;
+				read-only;
+			};
+		};
+	};
+};
