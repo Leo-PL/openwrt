@@ -109,6 +109,15 @@ define Device/ubnt_nanobridge-m
 endef
 TARGET_DEVICES += ubnt_nanobridge-m
 
+define Device/ubnt_nanobridge-m-16m
+  $(Device/ubnt-xm)
+  DEVICE_TITLE := Ubiquiti NanoBridge M (16M)
+  DEVICE_PACKAGES += rssileds
+  IMAGE_SIZE := 15960k
+  SUPPORTED_DEVICES += bullet-m ubnt,nanobridge-m
+endef
+TARGET_DEVICES += ubnt_nanobridge-m-16m
+
 define Device/ubnt_picostation-m
   $(Device/ubnt-xm)
   DEVICE_TITLE := Ubiquiti Picostation M
