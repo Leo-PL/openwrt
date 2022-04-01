@@ -79,6 +79,7 @@
 			pinctrl-names = "default";
 			reset-gpios = <&tlmm 47 GPIO_ACTIVE_LOW>;
 			reset-delay-us = <2000>;
+			/delete-node/ ethernet-phy@0;
 		};
 
 		ess-psgmii@98000 {
@@ -129,10 +130,13 @@
 
 		ess-switch@c000000 {
 			status = "okay";
+			switch_lan_bmp = <0x3c>;
+			switch_wan_bmp = <0x0>;
 		};
 
 		edma@c080000 {
 			status = "okay";
+			qcom,num_gmac = <1>;
 		};
 	};
 };
@@ -219,6 +223,14 @@
 
 &cryptobam {
 	status = "okay";
+};
+
+&gmac0 {
+	vlan_tag = <0 0x3c>;
+};
+
+&gmac1 {
+	status = "disabled";
 };
 
 &nand {
