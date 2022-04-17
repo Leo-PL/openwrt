@@ -848,6 +848,19 @@ define Device/tplink_tl-wr902ac-v1
 endef
 TARGET_DEVICES += tplink_tl-wr902ac-v1
 
+define Device/tplink_tl-wr902ac-v1-16m
+  $(Device/tplink-16mlzma)
+  SOC := qca9531
+  DEVICE_MODEL := TL-WR902AC
+  DEVICE_VARIANT := v1 (16M)
+  DEVICE_PACKAGES := kmod-usb2 kmod-usb-ledtrig-usbport \
+	kmod-ath10k-ct-smallbuffers ath10k-firmware-qca9887-ct \
+	-swconfig -uboot-envtools
+  TPLINK_HWID := 0x9020001
+  SUPPORTED_DEVICES += tl-wr902ac-v1 tplink,tl-wr902ac-v1
+endef
+TARGET_DEVICES += tplink_tl-wr902ac-v1-16m
+
 define Device/tplink_tl-wr941hp-v1
   $(Device/tplink-safeloader)
   SOC := tp9343
