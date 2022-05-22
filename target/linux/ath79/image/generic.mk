@@ -2312,6 +2312,18 @@ define Device/rosinson_wr818
 endef
 TARGET_DEVICES += rosinson_wr818
 
+define Device/ruckus_zf7372
+  SOC := ar9344
+  DEVICE_VENDOR := Ruckus
+  DEVICE_MODEL := ZoneFlex 7372
+  DEVICE_PACKAGES := -swconfig kmod-usb2 kmod-usb-chipidea2
+  IMAGE_SIZE := 31744k
+  LOADER_TYPE := bin
+  KERNEL := kernel-bin | append-dtb | lzma | loader-kernel | uImage none
+  KERNEL_INITRAMFS := kernel-bin | append-dtb | lzma | loader-kernel | uImage none
+endef
+TARGET_DEVICES += ruckus_zf7372
+
 define Device/samsung_wam250
   SOC := ar9344
   DEVICE_VENDOR := Samsung
