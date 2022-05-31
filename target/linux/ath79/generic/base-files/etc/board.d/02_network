@@ -130,7 +130,7 @@ ath79_setup_interfaces()
 	ocedo,ursus|\
 	ruckus,zf7372|\
 	ubnt,unifi-ap-outdoor-plus)
-		ucidef_set_interface_lan "eth0 eth1"
+		ucidef_set_interface_lan "eth0 lan1"
 		;;
 	atheros,db120)
 		ucidef_add_switch "switch0" \

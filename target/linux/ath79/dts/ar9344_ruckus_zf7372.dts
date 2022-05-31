@@ -200,16 +200,14 @@
 
 &eth1 {
 	status = "okay";
-	phy-handle = <&swphy0>;
 
 	nvmem-cells = <&macaddr_board_data_66>;
 	nvmem-cell-names = "mac-address";
 
-	/delete-node/ fixed-link;
 	gmac-config {
-		device = <&gmac>;
-		switch-phy-swap = <0>;
-		switch-only-mode = <1>;
+	        device = <&gmac>;
+	        switch-phy-swap = <0>;
+	        switch-only-mode = <1>;
 	};
 };
 
@@ -241,6 +239,14 @@
 	enable_gpio_16: pinctrl_enable_gpio_16 {
 		pinctrl-single,bits = <0x10 0x0 0xff>;
 	};
+};
+
+&switch_port1 {
+	status = "okay";
+};
+
+&swphy0 {
+	status = "okay";
 };
 
 &wmac {
