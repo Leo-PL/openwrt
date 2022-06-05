@@ -141,6 +141,46 @@
 	mac-address-increment = <(-1)>;
 };
 
+&switch_port1 {
+	status = "okay";
+	label = "lan4";
+};
+
+&switch_port2 {
+	status = "okay";
+	label = "lan1";
+};
+
+&switch_port3 {
+	status = "okay";
+	label = "lan2";
+};
+
+&switch_port4 {
+	status = "okay";
+	label = "lan3";
+};
+
+&swphy0 {
+	status = "okay";
+};
+
+&swphy1 {
+	status = "okay";
+};
+
+&swphy2 {
+	status = "okay";
+};
+
+&swphy3 {
+	status = "okay";
+};
+
+&swphy4 {
+	status = "okay";
+};
+
 &wmac {
 	status = "okay";
 
