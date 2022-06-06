@@ -1,0 +1,113 @@
+From e9543df7fd96bfd19c78e77bbfa217eae608dd09 Mon Sep 17 00:00:00 2001
+From: Lech Perczak <lech.perczak@gmail.com>
+Date: Sun, 5 Jun 2022 18:54:03 +0200
+Subject: [PATCH 2/2] net: dsa: ar9331: support AR9344 tag format
+
+AR9344 and newer SoC's use different tag format format, handled by
+AR9344 tagger. Allow selection of this driver through matching
+"qca,ar9344-switch" compatible string.
+
+Signed-off-by: Lech Perczak <lech.perczak@gmail.com>
+---
+ drivers/net/dsa/qca/Kconfig  |  1 +
+ drivers/net/dsa/qca/ar9331.c | 33 +++++++++++++++++++++++++++------
+ 2 files changed, 28 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/net/dsa/qca/Kconfig b/drivers/net/dsa/qca/Kconfig
+index 13b7e679b8b5..591071b58200 100644
+--- a/drivers/net/dsa/qca/Kconfig
++++ b/drivers/net/dsa/qca/Kconfig
+@@ -3,6 +3,7 @@ config NET_DSA_AR9331
+ 	tristate "Qualcomm Atheros AR9331 Ethernet switch support"
+ 	depends on NET_DSA
+ 	select NET_DSA_TAG_AR9331
++	select NET_DSA_TAG_AR9344
+ 	select REGMAP
+ 	help
+ 	  This enables support for the Qualcomm Atheros AR9331 built-in Ethernet
+diff --git a/drivers/net/dsa/qca/ar9331.c b/drivers/net/dsa/qca/ar9331.c
+index 5d476f452396..4572343207ef 100644
+--- a/drivers/net/dsa/qca/ar9331.c
++++ b/drivers/net/dsa/qca/ar9331.c
+@@ -41,6 +41,7 @@
+ 
+ #include <linux/bitfield.h>
+ #include <linux/module.h>
++#include <linux/of_device.h>
+ #include <linux/of_irq.h>
+ #include <linux/of_mdio.h>
+ #include <linux/regmap.h>
+@@ -234,10 +235,15 @@ struct ar9331_sw_port {
+ 	struct spinlock stats_lock;
+ };
+ 
++struct ar9331_sw_info {
++	enum dsa_tag_protocol protocol;
++};
++
+ struct ar9331_sw_priv {
+ 	struct device *dev;
+ 	struct dsa_switch ds;
+ 	struct dsa_switch_ops ops;
++	const struct ar9331_sw_info *info;
+ 	struct irq_domain *irqdomain;
+ 	u32 irq_mask;
+ 	struct mutex lock_irq;
+@@ -496,7 +502,8 @@ static enum dsa_tag_protocol ar9331_sw_get_tag_protocol(struct dsa_switch *ds,
+ 							int port,
+ 							enum dsa_tag_protocol m)
+ {
+-	return DSA_TAG_PROTO_AR9331;
++	struct ar9331_sw_priv *priv = (struct ar9331_sw_priv *)ds->priv;
++	return priv->info->protocol;
+ }
+ 
+ static void ar9331_sw_phylink_validate(struct dsa_switch *ds, int port,
+@@ -1019,6 +1026,21 @@ static struct regmap_bus ar9331_sw_bus = {
+ 	.max_raw_write = 4,
+ };
+ 
++static const struct ar9331_sw_info ar9331_info = {
++	.protocol = DSA_TAG_PROTO_AR9331
++};
++
++static const struct ar9331_sw_info ar9344_info = {
++	.protocol = DSA_TAG_PROTO_AR9344
++};
++
++static const struct of_device_id ar9331_sw_of_match[] = {
++	{ .compatible = "qca,ar9331-switch", .data = &ar9331_info },
++	{ .compatible = "qca,ar9344-switch", .data = &ar9344_info },
++	{ },
++};
++MODULE_DEVICE_TABLE(of, ar9331_sw_of_match);
++
+ static int ar9331_sw_probe(struct mdio_device *mdiodev)
+ {
+ 	struct ar9331_sw_priv *priv;
+@@ -1029,6 +1051,10 @@ static int ar9331_sw_probe(struct mdio_device *mdiodev)
+ 	if (!priv)
+ 		return -ENOMEM;
+ 
++	priv->info = of_device_get_match_data(&mdiodev->dev);
++	if (!priv->info)
++		return -EINVAL;
++
+ 	priv->regmap = devm_regmap_init(&mdiodev->dev, &ar9331_sw_bus, priv,
+ 					&ar9331_mdio_regmap_config);
+ 	if (IS_ERR(priv->regmap)) {
+@@ -1112,11 +1138,6 @@ static void ar9331_sw_shutdown(struct mdio_device *mdiodev)
+ 	dev_set_drvdata(&mdiodev->dev, NULL);
+ }
+ 
+-static const struct of_device_id ar9331_sw_of_match[] = {
+-	{ .compatible = "qca,ar9331-switch" },
+-	{ },
+-};
+-
+ static struct mdio_driver ar9331_sw_mdio_driver = {
+ 	.probe = ar9331_sw_probe,
+ 	.remove = ar9331_sw_remove,
+-- 
+2.30.2
+

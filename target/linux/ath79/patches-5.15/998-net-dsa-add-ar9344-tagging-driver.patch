@@ -1,0 +1,185 @@
+From 3a6417dc0f851e07f25d8ca90124579055ec0b48 Mon Sep 17 00:00:00 2001
+From: Christian 'Ansuel' Marangi <ansuelsmth@gmail.com>
+Date: Sun, 5 Jun 2022 17:22:16 +0200
+Subject: [PATCH 1/2] net: dsa: add ar9344 tagging driver
+
+The built-in switch present in ar9344 SoC have a very similar
+implementation to the one of qca8k and have a different implemenation
+than the one we already have for ar9331.
+
+Signed-off-by: Christian 'Ansuel' Marangi <ansuelsmth@gmail.com>
+---
+ include/net/dsa.h    |   2 +
+ net/dsa/Kconfig      |   6 +++
+ net/dsa/Makefile     |   1 +
+ net/dsa/tag_ar9344.c | 109 +++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 118 insertions(+)
+ create mode 100644 net/dsa/tag_ar9344.c
+
+diff --git a/include/net/dsa.h b/include/net/dsa.h
+index d784e76113b8..354254c7c6e9 100644
+--- a/include/net/dsa.h
++++ b/include/net/dsa.h
+@@ -51,6 +51,7 @@ struct phylink_link_state;
+ #define DSA_TAG_PROTO_SEVILLE_VALUE		21
+ #define DSA_TAG_PROTO_BRCM_LEGACY_VALUE		22
+ #define DSA_TAG_PROTO_SJA1110_VALUE		23
++#define DSA_TAG_PROTO_AR9344_VALUE		24
+ 
+ enum dsa_tag_protocol {
+ 	DSA_TAG_PROTO_NONE		= DSA_TAG_PROTO_NONE_VALUE,
+@@ -71,6 +72,7 @@ enum dsa_tag_protocol {
+ 	DSA_TAG_PROTO_KSZ8795		= DSA_TAG_PROTO_KSZ8795_VALUE,
+ 	DSA_TAG_PROTO_OCELOT		= DSA_TAG_PROTO_OCELOT_VALUE,
+ 	DSA_TAG_PROTO_AR9331		= DSA_TAG_PROTO_AR9331_VALUE,
++	DSA_TAG_PROTO_AR9344		= DSA_TAG_PROTO_AR9344_VALUE,
+ 	DSA_TAG_PROTO_RTL4_A		= DSA_TAG_PROTO_RTL4_A_VALUE,
+ 	DSA_TAG_PROTO_HELLCREEK		= DSA_TAG_PROTO_HELLCREEK_VALUE,
+ 	DSA_TAG_PROTO_XRS700X		= DSA_TAG_PROTO_XRS700X_VALUE,
+diff --git a/net/dsa/Kconfig b/net/dsa/Kconfig
+index d8ee15f1c7a9..57209ccee13f 100644
+--- a/net/dsa/Kconfig
++++ b/net/dsa/Kconfig
+@@ -24,6 +24,12 @@ config NET_DSA_TAG_AR9331
+ 	  Say Y or M if you want to enable support for tagging frames for
+ 	  the Atheros AR9331 SoC with built-in switch.
+ 
++config NET_DSA_TAG_AR9344
++	tristate "Tag driver for Atheros AR9344 SoC with built-in switch"
++	help
++	  Say Y or M if you want to enable support for tagging frames for
++	  the Atheros AR9344 SoC with built-in switch.
++
+ config NET_DSA_TAG_BRCM_COMMON
+ 	tristate
+ 	default n
+diff --git a/net/dsa/Makefile b/net/dsa/Makefile
+index 67ea009f242c..03c61aea5298 100644
+--- a/net/dsa/Makefile
++++ b/net/dsa/Makefile
+@@ -5,6 +5,7 @@ dsa_core-y += dsa.o dsa2.o master.o port.o slave.o switch.o tag_8021q.o
+ 
+ # tagging formats
+ obj-$(CONFIG_NET_DSA_TAG_AR9331) += tag_ar9331.o
++obj-$(CONFIG_NET_DSA_TAG_AR9344) += tag_ar9344.o
+ obj-$(CONFIG_NET_DSA_TAG_BRCM_COMMON) += tag_brcm.o
+ obj-$(CONFIG_NET_DSA_TAG_DSA_COMMON) += tag_dsa.o
+ obj-$(CONFIG_NET_DSA_TAG_GSWIP) += tag_gswip.o
+diff --git a/net/dsa/tag_ar9344.c b/net/dsa/tag_ar9344.c
+new file mode 100644
+index 000000000000..43c4435a4887
+--- /dev/null
++++ b/net/dsa/tag_ar9344.c
+@@ -0,0 +1,109 @@
++// SPDX-License-Identifier: GPL-2.0
++
++#include <linux/bitfield.h>
++#include <linux/etherdevice.h>
++#include <net/dsa.h>
++
++#include "dsa_priv.h"
++
++#define AR9344_HDR_LEN			2
++#define AR9344_HDR_VERSION		0x2
++
++#define AR9344_HDR_VERSION_MASK		GENMASK(15, 14)
++#define AR9344_HDR_PRIORITY_MASK	GENMASK(13, 12)
++#define AR9344_HDR_TYPE_MASK		GENMASK(11, 8)
++#define AR9344_HDR_FROM_CPU		BIT(7)
++#define AR9344_HDR_PORT_0		BIT(0)
++#define AR9344_HDR_PORT_1		BIT(1)
++#define AR9344_HDR_PORT_2		BIT(2)
++#define AR9344_HDR_PORT_3		BIT(3)
++#define AR9344_HDR_PORT_4		BIT(4)
++#define AR9344_HDR_PORT_5		BIT(5)
++#define AR9344_HDR_PORT_NUM_MASK	GENMASK(6, 0)
++
++static struct sk_buff *ar9344_tag_xmit(struct sk_buff *skb,
++				       struct net_device *dev)
++{
++	struct dsa_port *dp = dsa_slave_to_port(dev);
++	__le16 *phdr;
++	u16 hdr;
++
++	skb_push(skb, AR9344_HDR_LEN);
++
++	dsa_alloc_etype_header(skb, AR9344_HDR_LEN);
++	phdr = dsa_etype_header_pos_tx(skb);
++
++	hdr = FIELD_PREP(AR9344_HDR_VERSION_MASK, AR9344_HDR_VERSION);
++	hdr |= AR9344_HDR_FROM_CPU;
++	hdr |= FIELD_PREP(AR9344_HDR_PORT_NUM_MASK, BIT(dp->index));
++
++	*phdr = htons(hdr);
++
++	return skb;
++}
++
++static struct sk_buff *ar9344_tag_rcv(struct sk_buff *skb,
++				      struct net_device *ndev)
++{
++	u8 ver, port, port_mask;
++	u16 hdr;
++	__le16 *phdr;
++
++	if (unlikely(!pskb_may_pull(skb, AR9344_HDR_LEN)))
++		return NULL;
++
++	phdr = dsa_etype_header_pos_rx(skb);
++	hdr = ntohs(*phdr);
++
++	ver = FIELD_GET(AR9344_HDR_VERSION_MASK, hdr);
++	if (unlikely(ver != AR9344_HDR_VERSION)) {
++		netdev_warn_once(ndev, "%s:%i wrong header version 0x%2x\n",
++				 __func__, __LINE__, hdr);
++		return NULL;
++	}
++
++	if (unlikely(hdr & AR9344_HDR_FROM_CPU)) {
++		netdev_warn_once(ndev, "%s:%i packet should not be from cpu 0x%2x\n",
++				 __func__, __LINE__, hdr);
++		return NULL;
++	}
++
++	skb_pull_rcsum(skb, AR9344_HDR_LEN);
++	dsa_strip_etype_header(skb, AR9344_HDR_LEN);
++
++	/* Get source port information */
++	port_mask = FIELD_GET(AR9344_HDR_PORT_NUM_MASK, hdr);
++
++	if (port == AR9344_HDR_PORT_0)
++		port = 0;
++	if (port == AR9344_HDR_PORT_1)
++		port = 1;
++	if (port == AR9344_HDR_PORT_2)
++		port = 2;
++	if (port == AR9344_HDR_PORT_3)
++		port = 3;
++	if (port == AR9344_HDR_PORT_4)
++		port = 4;
++	if (port == AR9344_HDR_PORT_5)
++		port = 5;
++
++	pr_info("AR9344: port_mask %u, port detected %u", port_mask, port);
++
++	skb->dev = dsa_master_find_slave(ndev, 0, port);
++	if (!skb->dev)
++		return NULL;
++
++	return skb;
++}
++
++static const struct dsa_device_ops ar9344_netdev_ops = {
++	.name	= "ar9344",
++	.proto	= DSA_TAG_PROTO_AR9344,
++	.xmit	= ar9344_tag_xmit,
++	.rcv	= ar9344_tag_rcv,
++	.needed_headroom = AR9344_HDR_LEN,
++};
++
++MODULE_LICENSE("GPL v2");
++MODULE_ALIAS_DSA_TAG_DRIVER(DSA_TAG_PROTO_AR9344);
++module_dsa_tag_driver(ar9344_netdev_ops);
+-- 
+2.30.2
+
