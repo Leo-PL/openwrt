@@ -41,6 +41,38 @@
 	mac-address-increment = <1>;
 };
 
+&switch_port1 {
+	status = "okay";
+};
+
+&switch_port2 {
+	status = "okay";
+};
+
+&switch_port3 {
+	status = "okay";
+};
+
+&switch_port4 {
+	status = "okay";
+};
+
+&swphy0 {
+	status = "okay";
+};
+
+&swphy1 {
+	status = "okay";
+};
+
+&swphy2 {
+	status = "okay";
+};
+
+&swphy3 {
+	status = "okay";
+};
+
 &ath9k {
 	compatible = "pci168c,002b";
 };

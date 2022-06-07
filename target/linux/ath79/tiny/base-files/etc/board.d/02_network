@@ -23,9 +23,7 @@ ath79_setup_interfaces()
 	tplink,tl-wr743nd-v1|\
 	tplink,tl-wr841-v5|\
 	tplink,tl-wr941-v4)
-		ucidef_set_interface_wan "eth0"
-		ucidef_add_switch "switch0" \
-			"0@eth1" "1:lan" "2:lan" "3:lan" "4:lan"
+		ucidef_set_interfaces_lan_wan "lan1 lan2 lan3 lan4" "eth1"
 		;;
 	engenius,eap350-v1|\
 	engenius,ecb350-v1|\
