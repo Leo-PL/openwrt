@@ -12,14 +12,7 @@ case "$FIRMWARE" in
 	buffalo,whr-g301n|\
 	engenius,eap350-v1|\
 	engenius,ecb350-v1|\
-	engenius,enh202-v1|\
-	tplink,tl-wa701nd-v1|\
-	tplink,tl-wa730re-v1|\
-	tplink,tl-wa801nd-v1|\
-	tplink,tl-wa830re-v1|\
-	tplink,tl-wa901nd-v1|\
-	tplink,tl-wr841-v5|\
-	tplink,tl-wr941-v4)
+	engenius,enh202-v1)
 		caldata_extract "art" 0x1000 0xeb8
 		;;
 	dlink,dir-615-e4)
@@ -32,10 +25,6 @@ case "$FIRMWARE" in
 	on,n150r|\
 	tplink,tl-mr3220-v1|\
 	tplink,tl-mr3420-v1|\
-	tplink,tl-wr740n-v1|\
-	tplink,tl-wr740n-v3|\
-	tplink,tl-wr741-v1|\
-	tplink,tl-wr743nd-v1|\
 	tplink,tl-wr841-v7)
 		caldata_extract "art" 0x1000 0x1000
 		;;
