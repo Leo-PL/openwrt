@@ -41,21 +41,112 @@
 	compatible = "qca,ar7240-mdio";
 	builtin-switch;
 
-	builtin_switch: switch0@1f {
-		compatible = "qca,ar7240sw";
+	builtin_switch: switch@10 {
+		#address-cells = <1>;
+		#size-cells = <0>;
 
-		reg = <0x1f>;
+		compatible = "qca,ar9331-switch";
+		reg = <0x10>;
 		resets = <&rst 8>;
 		reset-names = "switch";
-		qca,mib-poll-interval = <500>;
 
-		mdio-bus {
+		interrupt-parent = <&miscintc>;
+		interrupts = <12>;
+
+		interrupt-controller;
+		#interrupt-cells = <1>;
+
+		ports {
 			#address-cells = <1>;
 			#size-cells = <0>;
 
-			swphy4: ethernet-phy@4 {
-				reg = <4>;
-				phy-mode = "mii";
+			switch_port0: port@0 {
+				reg = <0x0>;
+				label = "cpu";
+				ethernet = <&eth1>;
+
+				phy-mode = "gmii";
+
+				fixed-link {
+					speed = <1000>;
+					full-duplex;
+				};
+			};
+
+			switch_port1: port@1 {
+				reg = <0x1>;
+				phy-handle = <&swphy0>;
+				phy-mode = "internal";
+				label = "lan1";
+				status = "disabled";
+			};
+
+			switch_port2: port@2 {
+				reg = <0x2>;
+				phy-handle = <&swphy1>;
+				phy-mode = "internal";
+				label = "lan2";
+				status = "disabled";
+			};
+
+			switch_port3: port@3 {
+				reg = <0x3>;
+				phy-handle = <&swphy2>;
+				phy-mode = "internal";
+				label = "lan3";
+				status = "disabled";
+			};
+
+			switch_port4: port@4 {
+				reg = <0x4>;
+				phy-handle = <&swphy3>;
+				phy-mode = "internal";
+				label = "lan4";
+				status = "disabled";
+			};
+
+			switch_port5: port@5 {
+				reg = <0x5>;
+				phy-handle = <&swphy4>;
+				phy-mode = "internal";
+				label = "wan";
+				status = "disabled";
+			};
+		};
+
+		mdio {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			interrupt-parent = <&builtin_switch>;
+
+			swphy0: phy@0 {
+				reg = <0x0>;
+				interrupts = <0>;
+				status = "disabled";
+			};
+
+			swphy1: phy@1 {
+				reg = <0x1>;
+				interrupts = <0>;
+				status = "disabled";
+			};
+
+			swphy2: phy@2 {
+				reg = <0x2>;
+				interrupts = <0>;
+				status = "disabled";
+			};
+
+			swphy3: phy@3 {
+				reg = <0x3>;
+				interrupts = <0>;
+				status = "disabled";
+			};
+
+			swphy4: phy@4 {
+				reg = <0x4>;
+				interrupts = <0>;
 			};
 		};
 	};
@@ -71,6 +162,7 @@
 	resets = <&rst 9>;
 	reset-names = "mac";
 	phy-handle = <&swphy4>;
+	phy-mode = "mii";
 };
 
 &eth1 {
@@ -82,7 +174,6 @@
 	reset-names = "mac";
 
 	phy-mode = "gmii";
-	builtin-switch;
 
 	fixed-link {
 		speed = <1000>;
