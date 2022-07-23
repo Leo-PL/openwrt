@@ -104,6 +104,20 @@
 	};
 };
 
+&builtin_switch {
+	mdio-bus {
+		swphy2: ethernet-phy@2 {
+			reg = <2>;
+			phy-mode = "mii";
+		};
+	};
+};
+
+&eth1 {
+	phy-handle = <&swphy2>;
+	/delete-node/ fixed-link;
+};
+
 &usb0 {
 	status = "okay";
 };
