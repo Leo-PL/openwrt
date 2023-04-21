@@ -491,6 +491,18 @@ define Device/zte_mf286r
 endef
 TARGET_DEVICES += zte_mf286r
 
+define Device/zte_mf28d
+  SOC := ar9344
+  DEVICE_VENDOR := ZTE
+  DEVICE_MODEL := MF28D
+  BLOCKSIZE := 128k
+  PAGESIZE := 2048
+  KERNEL_SIZE := 4096k
+  DEVICE_PACKAGES := kmod-usb2 kmod-usb-net-qmi-wwan kmod-usb-serial-option uqmi
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+endef
+TARGET_DEVICES += zte_mf28d
+
 define Device/zyxel_nbg6716
   SOC := qca9558
   DEVICE_VENDOR := Zyxel
