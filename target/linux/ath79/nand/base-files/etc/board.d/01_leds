@@ -37,6 +37,14 @@ netgear,wndr4300-v2|\
 netgear,wndr4500-v3)
 	ucidef_set_led_switch "wan-amber" "WAN (amber)" "amber:wan" "switch0" "0x20"
 	;;
+zte,mf28d)
+	ucidef_set_led_switch "lan1" "LAN1" "green:lan1" "switch0" "0x02"
+	ucidef_set_led_switch "lan2" "LAN2" "green:lan2" "switch0" "0x10"
+	ucidef_set_led_switch "lan3" "LAN3" "green:lan3" "switch0" "0x08"
+	ucidef_set_led_switch "lan4" "LAN4" "green:lan4" "switch0" "0x04"
+	ucidef_set_led_netdev "wwan-link" "LTE" "green:wwan-link" "wwan0" "link"
+	ucidef_set_led_netdev "wwan-activity" "LTE" "green:wwan-activity" "wwan0" "tx rx"
+	;;
 esac
 
 board_config_flush
