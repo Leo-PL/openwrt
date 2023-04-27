@@ -43,7 +43,8 @@ ipq40xx_setup_interfaces()
 	wallys,dr40x9|\
 	zte,mf18a|\
 	zte,mf289f)
-		ucidef_set_interfaces_lan_wan "lan" "wan"
+		ucidef_set_interface_lan "lan wan"
+		ucidef_set_interface "wan" device "/dev/cdc-wdm0" protocol "qmi"
 		;;
 	aruba,ap-303|\
 	aruba,ap-365|\
