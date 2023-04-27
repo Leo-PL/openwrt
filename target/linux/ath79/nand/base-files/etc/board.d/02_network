@@ -67,7 +67,11 @@ ath79_setup_interfaces()
 			"0@eth0" "5:lan"
 		;;
 	zte,mf286|\
-	zte,mf286a|\
+	zte,mf286a)
+		ucidef_add_switch "switch0" \
+			"0@eth0" "1:lan:4" "2:lan:3" "3:lan:2" "5:lan:1"
+		ucidef_set_interface "wan" device "/dev/cdc-wdm0" protocol "qmi"
+		;;
 	zte,mf286r)
 		ucidef_add_switch "switch0" \
 			"0@eth0" "1:lan:4" "2:lan:3" "3:lan:2" "5:lan:1"
