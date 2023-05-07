@@ -121,7 +121,8 @@
 &wifi_ath10k {
 	nvmem-cells = <&macaddr_mac_0>, <&cal_caldata_5000>;
 	nvmem-cell-names = "mac-address", "calibration";
-	mac-address-increment = <1>;
+	mac-address-increment = <0x32>;
+	mac-address-increment-byte = <0>;
 };
 
 &wmac {
