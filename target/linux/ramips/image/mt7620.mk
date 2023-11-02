@@ -945,6 +945,20 @@ define Device/nexx_wt3020-8m
 endef
 TARGET_DEVICES += nexx_wt3020-8m
 
+define Device/nexx_wt3020-16m
+  SOC := mt7620n
+  IMAGE_SIZE := 16064k
+  IMAGES += factory.bin
+  IMAGE/factory.bin := $$(sysupgrade_bin) | check-size | \
+	poray-header -B WT3020 -F 8M
+  DEVICE_VENDOR := Nexx
+  DEVICE_MODEL := WT3020
+  DEVICE_VARIANT := 16M
+  DEVICE_PACKAGES := kmod-usb2 kmod-usb-ohci
+  SUPPORTED_DEVICES += wt3020 wt3020-16M
+endef
+TARGET_DEVICES += nexx_wt3020-16m
+
 define Device/ohyeah_oy-0001
   SOC := mt7620a
   IMAGE_SIZE := 16064k

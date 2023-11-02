@@ -214,7 +214,8 @@ ramips_setup_interfaces()
 		;;
 	netgear,pr2000|\
 	nexx,wt3020-4m|\
-	nexx,wt3020-8m)
+	nexx,wt3020-8m|\
+	nexx,wt3020-16m)
 		ucidef_add_switch "switch0" \
 			"4:lan" "0:wan" "6@eth0"
 		;;
@@ -285,6 +286,7 @@ ramips_setup_macs()
 	netgear,jwnr2010-v5|\
 	nexx,wt3020-4m|\
 	nexx,wt3020-8m|\
+	nexx,wt3020-16m|\
 	phicomm,psg1208|\
 	planex,db-wrt01|\
 	planex,mzk-750dhp|\
