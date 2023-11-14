@@ -1189,6 +1189,39 @@ endef
 
 $(eval $(call KernelPackage,video-mem2mem))
 
+define KernelPackage/video-async
+  SUBMENU:=$(VIDEO_MENU)
+  TITLE:=Asynchronous video device support
+  HIDDEN:=1
+  KCONFIG:= CONFIG_V4L2_ASYNC
+  FILES:= $(LINUX_DIR)/drivers/media/$(V4L2_DIR)/v4l2-async.ko
+  AUTOLOAD:=$(call AutoLoad,66,v4l2-async)
+  $(call AddDepends/video)
+endef
+
+define KernelPackage/video-async/description
+  Asynchronous video device support
+endef
+
+$(eval $(call KernelPackage,video-async))
+
+define KernelPackage/video-fwnode
+  SUBMENU:=$(VIDEO_MENU)
+  TITLE:=Video device firmware node support
+  HIDDEN:=1
+  DEPENDS:=+kmod-video-async
+  KCONFIG:= CONFIG_V4L2_FWNODE
+  FILES:= $(LINUX_DIR)/drivers/media/$(V4L2_DIR)/v4l2-fwnode.ko
+  AUTOLOAD:=$(call AutoLoad,66,v4l2-fwnode)
+  $(call AddDepends/video)
+endef
+
+define KernelPackage/video-fwnode/description
+  Video device firmware node support
+endef
+
+$(eval $(call KernelPackage,video-fwnode))
+
 define KernelPackage/video-dma-contig
   SUBMENU:=$(VIDEO_MENU)
   TITLE:=Video DMA support
