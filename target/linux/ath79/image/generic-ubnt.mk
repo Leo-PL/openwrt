@@ -129,6 +129,17 @@ define Device/ubnt_nanostation-loco-m-xw
 endef
 TARGET_DEVICES += ubnt_nanostation-loco-m-xw
 
+define Device/ubnt_nanostation-loco-m-xw-16m
+  $(Device/ubnt_nanostation-loco-m-xw)
+  DEVICE_VARIANT := XW (16M)
+  DEVICE_ALT0_VARIANT := XW (16M)
+  DEVICE_ALT1_VARIANT := XW (16M)
+  DEVICE_ALT2_VARIANT := XW (16M)
+  IMAGE_SIZE := 15960k
+  SUPPORTED_DEVICES += ubnt,nanostation-loco-m-xw
+endef
+TARGET_DEVICES += ubnt_nanostation-loco-m-xw-16m
+
 define Device/ubnt_nanostation-m-xw
   $(Device/ubnt-xw)
   DEVICE_MODEL := Nanostation M
