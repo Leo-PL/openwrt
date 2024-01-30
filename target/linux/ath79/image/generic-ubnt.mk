@@ -36,6 +36,15 @@ define Device/ubnt_bullet-m-xw
 endef
 TARGET_DEVICES += ubnt_bullet-m-xw
 
+define Device/ubnt_bullet-m-xw-16m
+  $(Device/ubnt_bullet-m-xw)
+  DEVICE_VARIANT := XW (16M)
+  DEVICE_ALT0_VARIANT := XW (16M)
+  SUPPORTED_DEVICES += ubnt,bullet-m-xw
+  IMAGE_SIZE := 15960k
+endef
+TARGET_DEVICES += ubnt_bullet-m-xw-16m
+
 define Device/ubnt_edgeswitch-5xp
   $(Device/ubnt-sw)
   DEVICE_MODEL := EdgeSwitch 5XP
