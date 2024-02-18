@@ -2779,6 +2779,7 @@ define Device/ruckus_zf7363
   DEVICE_MODEL := ZoneFlex 7363[-U]
   DEVICE_ALT0_VENDOR := Ruckus
   DEVICE_ALT0_MODEL := ZoneFlex 7343[-U]
+  DEVICE_PACKAGES += kmod-switch-rtl8367b
 endef
 TARGET_DEVICES += ruckus_zf7363
 

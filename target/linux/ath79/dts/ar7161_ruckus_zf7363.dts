@@ -7,18 +7,6 @@
 	compatible = "ruckus,zf7363", "qca,ar7161";
 };
 
-&mdio0 {
-	ethernet-phy@0 {
-		reg = <0x0>;
-		max-speed = <100>;
-	};
-
-	ethernet-phy@1 {
-		reg = <0x1>;
-		max-speed = <100>;
-	};
-};
-
 &eth1 {
 	status = "okay";
 	pll-data = <0x00110000 0x00001099 0x00991099>;
@@ -29,6 +17,13 @@
 	fixed-link {
 		speed = <100>;
 		full-duplex;
+	};
+
+	switch {
+		compatible = "realtek,rtl8367b";
+		cpu-port = <2>;
+		mii-bus = <&mdio0>;
+		realtek,extif0 = <1 0 1 1 1 1 1 1 2>;
 	};
 };
 
