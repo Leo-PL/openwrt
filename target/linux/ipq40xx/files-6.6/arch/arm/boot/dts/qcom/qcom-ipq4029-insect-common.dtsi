@@ -253,20 +253,27 @@
 				reg = <0x00900000 0x00200000>;
 				read-only;
 			};
-			partition@b00000 {
+			art: partition@b00000 {
 				label = "ART";
 				reg = <0x00b00000 0x00080000>;
 				read-only;
 			};
 			partition@c00000 {
-				label = "ubi";
+				compatible = "linux,ubi";
 				reg = <0x00c00000 0x07000000>;
+				label = "ubi";
 				/*
 				 * Do not try to allocate the remaining
 				 * 4 MiB to this ubi partition. It will
 				 * confuse the u-boot and it might not
 				 * find the kernel partition anymore.
 				 */
+
+				volumes {
+					ubi_art: art {
+						volname = "ART";
+					};
+				};
 			};
 		};
 	};
@@ -287,8 +294,8 @@
 			compatible = "qcom,ath10k";
 			status = "okay";
 			reg = <0x00010000 0 0 0 0>;
-			nvmem-cells = <&mac_address 1>;
-			nvmem-cell-names = "mac-address";
+			nvmem-cells = <&mac_address 1>, <&cal_art_9000>;
+			nvmem-cell-names = "mac-address", "calibration";
 		};
 	};
 };
@@ -392,15 +399,15 @@
 &wifi0 {
 	status = "okay";
 	qcom,ath10k-calibration-variant = "Meraki-MR33";
-	nvmem-cells = <&mac_address 2>;
-	nvmem-cell-names = "mac-address";
+	nvmem-cells = <&mac_address 2>, <&precal_art_1000>;
+	nvmem-cell-names = "mac-address", "pre-calibration";
 };
 
 &wifi1 {
 	status = "okay";
 	qcom,ath10k-calibration-variant = "Meraki-MR33";
-	nvmem-cells = <&mac_address 3>;
-	nvmem-cell-names = "mac-address";
+	nvmem-cells = <&mac_address 3>, <&precal_art_5000>;
+	nvmem-cell-names = "mac-address", "pre-calibration";
 };
 
 &mdio {
@@ -459,4 +466,44 @@
 
 &psgmiiphy {
 	status = "disabled";
+};
+
+&art {
+	nvmem-layout {
+		compatible = "fixed-layout";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		precal_art_1000_backup: precal@1000 {
+			reg = <0x1000 0x2f20>;
+		};
+
+		precal_art_5000_backup: precal@5000 {
+			reg = <0x5000 0x2f20>;
+		};
+
+		cal_art_9000_backup: cal@9000 {
+			reg = <0x9000 0x844>;
+		};
+	};
+};
+
+&ubi_art {
+	nvmem-layout {
+		compatible = "fixed-layout";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		precal_art_1000: precal@1000 {
+			reg = <0x1000 0x2f20>;
+		};
+
+		precal_art_5000: precal@5000 {
+			reg = <0x5000 0x2f20>;
+		};
+
+		cal_art_9000: cal@9000 {
+			reg = <0x9000 0x844>;
+		};
+	};
 };
