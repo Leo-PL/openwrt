@@ -125,11 +125,22 @@
 		};
 
 		partition@1080000 {
-			label = "ubi";
+			compatible = "linux,ubi";
 			reg = <0x1080000 0x6f00000>;
+			label = "ubi";
+
+			volumes {
+				ubi_board_config: board-config {
+					label = "board-config";
+				};
+
+				ubi_caldata: caldata {
+					label = "caldata";
+				};
+			};
 		};
 
-		partition@7fe0000 {
+		odm_caldata: partition@7fe0000 {
 			/*
 			 * This is not always present. And if
 			 * it is, then Meraki (or contractor)
@@ -157,7 +168,8 @@
 	wifi@0,0 {
 		compatible = "pci168c,0033";
 		reg = <0x0000 0 0 0 0>;
-		qca,no-eeprom;
+		nvmem-cells = <&macaddr_board_config_66 2>, <&cal_caldata_5000>;
+		nvmem-cell-names = "mac-address", "calibration";
 	};
 };
 
@@ -167,7 +179,8 @@
 	wifi@0,0 {
 		compatible = "pci168c,0033";
 		reg = <0x0000 0 0 0 0>;
-		qca,no-eeprom;
+		nvmem-cells = <&macaddr_board_config_66 3>, <&cal_caldata_9000>;
+		nvmem-cell-names = "mac-address", "calibration";
 	};
 };
 
@@ -183,6 +196,8 @@
 	status = "okay";
 	pll-data = <0xa6000000 0xa0000101 0x80001313>;
 	phy-handle = <&phy>;
+	nvmem-cells = <&macaddr_board_config_66 0>;
+	nvmem-cell-names = "mac-address";
 
 	gmac-config {
 		device = <&gmac>;
@@ -194,5 +209,65 @@
 
 &wmac {
 	status = "okay";
-	qca,no-eeprom;
+	nvmem-cells = <&macaddr_board_config_66 1>, <&cal_caldata_1000>;
+	nvmem-cell-names = "mac-address", "calibration";
+};
+
+&odm_caldata {
+	/*
+	 * Currently unused - please see the note in main node.
+	 * Can be used as a backup (again) if a fallback mechanism
+	 * can be implemented into nvmem subsystem for getting calibration data
+	 */
+	nvmem-layout {
+		compatible = "fixed-layout";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		cal_caldata_1000_backup: calibration@1000 {
+			reg = <0x1000 0x440>;
+		};
+
+		cal_caldata_5000_backup: calibration@5000 {
+			reg = <0x5000 0x440>;
+		};
+
+		cal_caldata_9000_backup: calibration@9000 {
+			reg = <0x9000 0x440>;
+		};
+	};
+};
+
+&ubi_board_config {
+	nvmem-layout {
+		compatible = "fixed-layout";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		macaddr_board_config_66: macaddr@66 {
+			compatible = "mac-base";
+			reg = <0x66 0x6>;
+			#nvmem-cell-cells = <1>;
+		};
+	};
+};
+
+&ubi_caldata {
+	nvmem-layout {
+		compatible = "fixed-layout";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		cal_caldata_1000: calibration@1000 {
+			reg = <0x1000 0x440>;
+		};
+
+		cal_caldata_5000: calibration@5000 {
+			reg = <0x5000 0x440>;
+		};
+
+		cal_caldata_9000: calibration@9000 {
+			reg = <0x9000 0x440>;
+		};
+	};
 };
