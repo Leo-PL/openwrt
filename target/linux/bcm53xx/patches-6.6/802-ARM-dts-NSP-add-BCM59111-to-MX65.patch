@@ -9,7 +9,7 @@ Signed-off-by: Matthew Hagan <mnhagan88@gmail.com>
 
 --- a/arch/arm/boot/dts/broadcom/bcm958625-meraki-alamo.dtsi
 +++ b/arch/arm/boot/dts/broadcom/bcm958625-meraki-alamo.dtsi
-@@ -499,3 +499,14 @@
+@@ -541,3 +541,14 @@
  		};
  	};
  };

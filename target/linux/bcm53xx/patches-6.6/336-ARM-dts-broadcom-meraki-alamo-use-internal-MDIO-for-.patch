@@ -1,0 +1,213 @@
+From 03eae8035979e787ef18cc726c4f27ef137e54e3 Mon Sep 17 00:00:00 2001
+From: Lech Perczak <lech.perczak@gmail.com>
+Date: Mon, 21 Oct 2024 23:42:20 +0200
+Subject: [PATCH 3/4] ARM: dts: broadcom: meraki-alamo: use internal MDIO for
+ qca8k switches
+
+Signed-off-by: Lech Perczak <lech.perczak@gmail.com>
+---
+ .../dts/broadcom/bcm958625-meraki-alamo.dtsi  | 102 +++++++++++-------
+ 1 file changed, 62 insertions(+), 40 deletions(-)
+
+--- a/arch/arm/boot/dts/broadcom/bcm958625-meraki-alamo.dtsi
++++ b/arch/arm/boot/dts/broadcom/bcm958625-meraki-alamo.dtsi
+@@ -92,26 +92,6 @@
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 
+-			phy_port6: phy@0 {
+-				reg = <0>;
+-			};
+-
+-			phy_port7: phy@1 {
+-				reg = <1>;
+-			};
+-
+-			phy_port8: phy@2 {
+-				reg = <2>;
+-			};
+-
+-			phy_port9: phy@3 {
+-				reg = <3>;
+-			};
+-
+-			phy_port10: phy@4 {
+-				reg = <4>;
+-			};
+-
+ 			switch@10 {
+ 				compatible = "qca,qca8337";
+ 				reg = <0x10>;
+@@ -135,6 +115,7 @@
+ 					port@1 {
+ 						reg = <1>;
+ 						label = "lan8";
++						phy-mode = "internal";
+ 						phy-handle = <&phy_port6>;
+ 
+ 						leds {
+@@ -164,6 +145,7 @@
+ 					port@2 {
+ 						reg = <2>;
+ 						label = "lan9";
++						phy-mode = "internal";
+ 						phy-handle = <&phy_port7>;
+ 
+ 						leds {
+@@ -193,6 +175,7 @@
+ 					port@3 {
+ 						reg = <3>;
+ 						label = "lan10";
++						phy-mode = "internal";
+ 						phy-handle = <&phy_port8>;
+ 
+ 						leds {
+@@ -222,6 +205,7 @@
+ 					port@4 {
+ 						reg = <4>;
+ 						label = "lan11";
++						phy-mode = "internal";
+ 						phy-handle = <&phy_port9>;
+ 
+ 						leds {
+@@ -251,6 +235,7 @@
+ 					port@5 {
+ 						reg = <5>;
+ 						label = "lan12";
++						phy-mode = "internal";
+ 						phy-handle = <&phy_port10>;
+ 
+ 						leds {
+@@ -277,33 +262,39 @@
+ 						};
+ 					};
+ 				};
+-			};
+-		};
+ 
+-		mdio-mii@2000 {
+-			reg = <0x2000>;
+-			#address-cells = <1>;
+-			#size-cells = <0>;
++				mdio {
++					#address-cells = <1>;
++					#size-cells = <0>;
+ 
+-			phy_port1: phy@0 {
+-				reg = <0>;
+-			};
++					phy_port6: phy@0 {
++						reg = <0>;
++					};
+ 
+-			phy_port2: phy@1 {
+-				reg = <1>;
+-			};
++					phy_port7: phy@1 {
++						reg = <1>;
++					};
+ 
+-			phy_port3: phy@2 {
+-				reg = <2>;
+-			};
++					phy_port8: phy@2 {
++						reg = <2>;
++					};
+ 
+-			phy_port4: phy@3 {
+-				reg = <3>;
+-			};
++					phy_port9: phy@3 {
++						reg = <3>;
++					};
+ 
+-			phy_port5: phy@4 {
+-				reg = <4>;
++					phy_port10: phy@4 {
++						reg = <4>;
++					};
++
++				};
+ 			};
++		};
++
++		mdio-mii@2000 {
++			reg = <0x2000>;
++			#address-cells = <1>;
++			#size-cells = <0>;
+ 
+ 			switch@10 {
+ 				compatible = "qca,qca8337";
+@@ -328,6 +319,7 @@
+ 					port@1 {
+ 						reg = <1>;
+ 						label = "lan3";
++						phy-mode = "internal";
+ 						phy-handle = <&phy_port1>;
+ 
+ 						leds {
+@@ -357,6 +349,7 @@
+ 					port@2 {
+ 						reg = <2>;
+ 						label = "lan4";
++						phy-mode = "internal";
+ 						phy-handle = <&phy_port2>;
+ 
+ 						leds {
+@@ -386,6 +379,7 @@
+ 					port@3 {
+ 						reg = <3>;
+ 						label = "lan5";
++						phy-mode = "internal";
+ 						phy-handle = <&phy_port3>;
+ 
+ 						leds {
+@@ -415,6 +409,7 @@
+ 					port@4 {
+ 						reg = <4>;
+ 						label = "lan6";
++						phy-mode = "internal";
+ 						phy-handle = <&phy_port4>;
+ 
+ 						leds {
+@@ -444,6 +439,7 @@
+ 					port@5 {
+ 						reg = <5>;
+ 						label = "lan7";
++						phy-mode = "internal";
+ 						phy-handle = <&phy_port5>;
+ 
+ 						leds {
+@@ -470,6 +466,32 @@
+ 						};
+ 					};
+ 				};
++
++				mdio {
++					#address-cells = <1>;
++					#size-cells = <0>;
++
++					phy_port1: phy@0 {
++						reg = <0>;
++					};
++
++					phy_port2: phy@1 {
++						reg = <1>;
++					};
++
++					phy_port3: phy@2 {
++						reg = <2>;
++					};
++
++					phy_port4: phy@3 {
++						reg = <3>;
++					};
++
++					phy_port5: phy@4 {
++						reg = <4>;
++					};
++
++				};
+ 			};
+ 		};
+ 	};

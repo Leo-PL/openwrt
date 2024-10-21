@@ -1,0 +1,307 @@
+From efeaf2a933db02fd8c4aed3823a72192156bdb09 Mon Sep 17 00:00:00 2001
+From: Lech Perczak <lech.perczak@gmail.com>
+Date: Mon, 21 Oct 2024 23:42:13 +0200
+Subject: [PATCH 2/4] ARM: dts: broadcom: meraki-alamo: define LAN LEDs
+
+The qca8k driver now supports LED bindings for its built-in per port LED
+drivers - let's use it to expose the LEDs to userspace.
+
+Signed-off-by: Lech Perczak <lech.perczak@gmail.com>
+---
+ .../dts/broadcom/bcm958625-meraki-alamo.dtsi  | 230 ++++++++++++++++++
+ 1 file changed, 230 insertions(+)
+
+--- a/arch/arm/boot/dts/broadcom/bcm958625-meraki-alamo.dtsi
++++ b/arch/arm/boot/dts/broadcom/bcm958625-meraki-alamo.dtsi
+@@ -136,30 +136,145 @@
+ 						reg = <1>;
+ 						label = "lan8";
+ 						phy-handle = <&phy_port6>;
++
++						leds {
++							#address-cells = <1>;
++							#size-cells = <0>;
++
++							led@0 {
++								/* green:lan8-right */
++								reg = <0>;
++								color = <LED_COLOR_ID_GREEN>;
++								function = LED_FUNCTION_ACTIVITY;
++								function-enumerator = <0>;
++								default-state = "keep";
++							};
++
++							led@2 {
++								/* green:lan8-left */
++								reg = <2>;
++								color = <LED_COLOR_ID_GREEN>;
++								function = LED_FUNCTION_ACTIVITY;
++								function-enumerator = <1>;
++								default-state = "keep";
++							};
++						};
+ 					};
+ 
+ 					port@2 {
+ 						reg = <2>;
+ 						label = "lan9";
+ 						phy-handle = <&phy_port7>;
++
++						leds {
++							#address-cells = <1>;
++							#size-cells = <0>;
++
++							led@0 {
++								/* green:lan9-right */
++								reg = <0>;
++								color = <LED_COLOR_ID_GREEN>;
++								function = LED_FUNCTION_ACTIVITY;
++								function-enumerator = <0>;
++								default-state = "keep";
++							};
++
++							led@2 {
++								/* green:lan9-left */
++								reg = <2>;
++								color = <LED_COLOR_ID_GREEN>;
++								function = LED_FUNCTION_ACTIVITY;
++								function-enumerator = <1>;
++								default-state = "keep";
++							};
++						};
+ 					};
+ 
+ 					port@3 {
+ 						reg = <3>;
+ 						label = "lan10";
+ 						phy-handle = <&phy_port8>;
++
++						leds {
++							#address-cells = <1>;
++							#size-cells = <0>;
++
++							led@0 {
++								/* green:lan10-right */
++								reg = <0>;
++								color = <LED_COLOR_ID_GREEN>;
++								function = LED_FUNCTION_ACTIVITY;
++								function-enumerator = <0>;
++								default-state = "keep";
++							};
++
++							led@2 {
++								/* green:lan10-left */
++								reg = <2>;
++								color = <LED_COLOR_ID_GREEN>;
++								function = LED_FUNCTION_ACTIVITY;
++								function-enumerator = <1>;
++								default-state = "keep";
++							};
++						};
+ 					};
+ 
+ 					port@4 {
+ 						reg = <4>;
+ 						label = "lan11";
+ 						phy-handle = <&phy_port9>;
++
++						leds {
++							#address-cells = <1>;
++							#size-cells = <0>;
++
++							led@0 {
++								/* green:lan11-right */
++								reg = <0>;
++								color = <LED_COLOR_ID_GREEN>;
++								function = LED_FUNCTION_ACTIVITY;
++								function-enumerator = <0>;
++								default-state = "keep";
++							};
++
++							led@2 {
++								/* green:lan11-left */
++								reg = <2>;
++								color = <LED_COLOR_ID_GREEN>;
++								function = LED_FUNCTION_ACTIVITY;
++								function-enumerator = <1>;
++								default-state = "keep";
++							};
++						};
+ 					};
+ 
+ 					port@5 {
+ 						reg = <5>;
+ 						label = "lan12";
+ 						phy-handle = <&phy_port10>;
++
++						leds {
++							#address-cells = <1>;
++							#size-cells = <0>;
++
++							led@0 {
++								/* green:lan12-right */
++								reg = <0>;
++								color = <LED_COLOR_ID_GREEN>;
++								function = LED_FUNCTION_ACTIVITY;
++								function-enumerator = <0>;
++								default-state = "keep";
++							};
++
++							led@2 {
++								/* green:lan12-left */
++								reg = <2>;
++								color = <LED_COLOR_ID_GREEN>;
++								function = LED_FUNCTION_ACTIVITY;
++								function-enumerator = <1>;
++								default-state = "keep";
++							};
++						};
+ 					};
+ 				};
+ 			};
+@@ -214,30 +329,145 @@
+ 						reg = <1>;
+ 						label = "lan3";
+ 						phy-handle = <&phy_port1>;
++
++						leds {
++							#address-cells = <1>;
++							#size-cells = <0>;
++
++							led@0 {
++								/* green:lan3-right */
++								reg = <0>;
++								color = <LED_COLOR_ID_GREEN>;
++								function = LED_FUNCTION_ACTIVITY;
++								function-enumerator = <0>;
++								default-state = "keep";
++							};
++
++							led@2 {
++								/* green:lan3-left */
++								reg = <2>;
++								color = <LED_COLOR_ID_GREEN>;
++								function = LED_FUNCTION_ACTIVITY;
++								function-enumerator = <1>;
++								default-state = "keep";
++							};
++						};
+ 					};
+ 
+ 					port@2 {
+ 						reg = <2>;
+ 						label = "lan4";
+ 						phy-handle = <&phy_port2>;
++
++						leds {
++							#address-cells = <1>;
++							#size-cells = <0>;
++
++							led@0 {
++								/* green:lan4-right */
++								reg = <0>;
++								color = <LED_COLOR_ID_GREEN>;
++								function = LED_FUNCTION_ACTIVITY;
++								function-enumerator = <0>;
++								default-state = "keep";
++							};
++
++							led@2 {
++								/* green:lan4-left */
++								reg = <2>;
++								color = <LED_COLOR_ID_GREEN>;
++								function = LED_FUNCTION_ACTIVITY;
++								function-enumerator = <1>;
++								default-state = "keep";
++							};
++						};
+ 					};
+ 
+ 					port@3 {
+ 						reg = <3>;
+ 						label = "lan5";
+ 						phy-handle = <&phy_port3>;
++
++						leds {
++							#address-cells = <1>;
++							#size-cells = <0>;
++
++							led@0 {
++								/* green:lan5-right */
++								reg = <0>;
++								color = <LED_COLOR_ID_GREEN>;
++								function = LED_FUNCTION_ACTIVITY;
++								function-enumerator = <0>;
++								default-state = "keep";
++							};
++
++							led@2 {
++								/* green:lan5-left */
++								reg = <2>;
++								color = <LED_COLOR_ID_GREEN>;
++								function = LED_FUNCTION_ACTIVITY;
++								function-enumerator = <1>;
++								default-state = "keep";
++							};
++						};
+ 					};
+ 
+ 					port@4 {
+ 						reg = <4>;
+ 						label = "lan6";
+ 						phy-handle = <&phy_port4>;
++
++						leds {
++							#address-cells = <1>;
++							#size-cells = <0>;
++
++							led@0 {
++								/* green:lan6-right */
++								reg = <0>;
++								color = <LED_COLOR_ID_GREEN>;
++								function = LED_FUNCTION_ACTIVITY;
++								function-enumerator = <0>;
++								default-state = "keep";
++							};
++
++							led@2 {
++								/* green:lan6-left */
++								reg = <2>;
++								color = <LED_COLOR_ID_GREEN>;
++								function = LED_FUNCTION_ACTIVITY;
++								function-enumerator = <1>;
++								default-state = "keep";
++							};
++						};
+ 					};
+ 
+ 					port@5 {
+ 						reg = <5>;
+ 						label = "lan7";
+ 						phy-handle = <&phy_port5>;
++
++						leds {
++							#address-cells = <1>;
++							#size-cells = <0>;
++
++							led@0 {
++								/* green:lan7-right */
++								reg = <0>;
++								color = <LED_COLOR_ID_GREEN>;
++								function = LED_FUNCTION_ACTIVITY;
++								function-enumerator = <0>;
++								default-state = "keep";
++							};
++
++							led@2 {
++								/* green:lan7-left */
++								reg = <2>;
++								color = <LED_COLOR_ID_GREEN>;
++								function = LED_FUNCTION_ACTIVITY;
++								function-enumerator = <1>;
++								default-state = "keep";
++							};
++						};
+ 					};
+ 				};
+ 			};
