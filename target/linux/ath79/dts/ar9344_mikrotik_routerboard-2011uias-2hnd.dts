@@ -93,9 +93,8 @@
 
 &nand {
 	status = "okay";
-
 	nand-ecc-mode = "soft";
-	nand-ecc-step-size = <2048>;
+	nand-is-boot-medium;
 	qca,nand-swap-dma;
 	qca,nand-scan-fixup;
 

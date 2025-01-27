@@ -1,0 +1,39 @@
+From 1af3561240dcce80099121f4b40952891f23883e Mon Sep 17 00:00:00 2001
+From: Lech Perczak <lech.perczak@gmail.com>
+Date: Tue, 21 Jan 2025 15:08:54 +0100
+Subject: [PATCH] mtd: nand: raw: add chip IDs required for Mikrotik RB2011
+
+---
+ drivers/mtd/nand/raw/nand_ids.c     | 4 ++++
+ drivers/mtd/nand/raw/nand_samsung.c | 7 +++++++
+ 2 files changed, 11 insertions(+)
+
+--- a/drivers/mtd/nand/raw/nand_ids.c
++++ b/drivers/mtd/nand/raw/nand_ids.c
+@@ -64,6 +64,10 @@ struct nand_flash_dev nand_flash_ids[] =
+ 	{"TH58NVG3S0HBAI4 8G 3.3V 8-bit",
+ 		{ .id = {0x98, 0xd3, 0x91, 0x26, 0x76} },
+ 		  SZ_4K, SZ_1K, SZ_256K, 0, 5, 256, NAND_ECC_INFO(8, SZ_512)},
++	{"GD9FU1G8F3A 1G 3.3V 8-bit",
++		{ .id = {0xc8, 0xf1, 0x80, 0x19, 0x42} },
++		  SZ_2K, SZ_128, SZ_128K, 0, 5, 64, NAND_ECC_INFO(0,0) },
++
+ 
+ 	LEGACY_ID_NAND("NAND 4MiB 5V 8-bit",   0x6B, 4, SZ_8K, SP_OPTIONS),
+ 	LEGACY_ID_NAND("NAND 4MiB 3,3V 8-bit", 0xE3, 4, SZ_8K, SP_OPTIONS),
+--- a/drivers/mtd/nand/raw/nand_samsung.c
++++ b/drivers/mtd/nand/raw/nand_samsung.c
+@@ -109,6 +109,13 @@ static void samsung_nand_decode_id(struc
+ 				    (chip->id.data[4] & GENMASK(1, 0)) == 0x1)
+ 					chip->options |= NAND_NO_SUBPAGE_WRITE;
+ 				break;
++			/* K9F1208U0C doesn't support subpage write */
++			case 0x76:
++				if (chip->id.len == 4 &&
++						(chip->id.data[2] == 0x5A &&
++						 chip->id.data[3] == 0x3F))
++					chip->options |= NAND_NO_SUBPAGE_WRITE;
++				break;
+ 			default:
+ 				break;
+ 			}
