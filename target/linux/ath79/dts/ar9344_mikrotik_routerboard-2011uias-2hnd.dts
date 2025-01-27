@@ -175,6 +175,15 @@
 			};
 		};
 	};
+
+	display@1 {
+		compatible = "sitronix,st7735r";
+		reg = <1>;
+		spi-max-frequency = <15000000>;
+		backlight = <&lcd_backlight>;
+		//dc-gpios = <&gpio 5 GPIO_ACTIVE_HIGH>;
+		buswidth = <8>;
+	};
 };
 
 &mdio0 {
