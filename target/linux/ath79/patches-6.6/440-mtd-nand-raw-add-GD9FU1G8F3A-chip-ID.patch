@@ -1,0 +1,24 @@
+From 67f33f9c3beaa242af12e16c630bd98d086df346 Mon Sep 17 00:00:00 2001
+From: Lech Perczak <lech.perczak@gmail.com>
+Date: Tue, 21 Jan 2025 15:08:54 +0100
+Subject: [PATCH 1/2] mtd: nand: raw: add GD9FU1G8F3A chip ID
+
+This chip is used in early Mikrotik RB2011 models, and required for full
+OpenWrt support on the device.
+---
+ drivers/mtd/nand/raw/nand_ids.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+--- a/drivers/mtd/nand/raw/nand_ids.c
++++ b/drivers/mtd/nand/raw/nand_ids.c
+@@ -64,6 +64,10 @@ struct nand_flash_dev nand_flash_ids[] =
+ 	{"TH58NVG3S0HBAI4 8G 3.3V 8-bit",
+ 		{ .id = {0x98, 0xd3, 0x91, 0x26, 0x76} },
+ 		  SZ_4K, SZ_1K, SZ_256K, 0, 5, 256, NAND_ECC_INFO(8, SZ_512)},
++	{"GD9FU1G8F3A 1G 3.3V 8-bit",
++		{ .id = {0xc8, 0xf1, 0x80, 0x19, 0x42} },
++		  SZ_2K, SZ_128, SZ_128K, 0, 5, 64, NAND_ECC_INFO(0,0) },
++
+ 
+ 	LEGACY_ID_NAND("NAND 4MiB 5V 8-bit",   0x6B, 4, SZ_8K, SP_OPTIONS),
+ 	LEGACY_ID_NAND("NAND 4MiB 3,3V 8-bit", 0xE3, 4, SZ_8K, SP_OPTIONS),
