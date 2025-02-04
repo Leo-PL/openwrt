@@ -184,6 +184,25 @@
 		//dc-gpios = <&gpio 5 GPIO_ACTIVE_HIGH>;
 		buswidth = <8>;
 	};
+
+	touchscreen@2 {
+		compatible = "zilltek,zt2046q", "ti,tsc2046";
+		reg = <2>;
+		spi-max-frequency = <2000000>;
+		spi-cpol;
+		spi-cpha;
+		//pendown-gpios = <&gpio 1 GPIO_ACTIVE_HIGH>;
+		//interrupt-parent = <&gpio>;
+		//interrupts = <1>;
+		//wakeup-source;
+
+		//ti,pressure-max = /bits/ 16 <255>;
+		//ti,x-max = /bits/ 16 <8000>;
+		//ti,x-min = /bits/ 16 <0>;
+		//ti,x-plate-ohms = /bits/ 16 <40>;
+		//ti,y-max = /bits/ 16 <4800>;
+		//ti,y-min = /bits/ 16 <0>;
+	};
 };
 
 &mdio0 {
