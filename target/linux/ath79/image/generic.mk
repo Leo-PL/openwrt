@@ -2974,6 +2974,7 @@ define Device/ruckus_r500
   DEVICE_MODEL := R500
   IMAGE_SIZE := 63744k
   BLOCKSIZE := 256k
+  LZMA_TEXT_START := 0x82800000
   DEVICE_PACKAGES += kmod-ath10k-ct ath10k-firmware-qca988x-ct \
 		     kmod-i2c-gpio kmod-tpm-i2c-infineon
 endef
