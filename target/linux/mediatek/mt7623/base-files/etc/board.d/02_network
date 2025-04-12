@@ -13,6 +13,9 @@ mediatek_setup_interfaces()
 	unielec,u7623-02-emmc-512m)
 		ucidef_set_interfaces_lan_wan "lan0 lan1 lan2 lan3" "wan"
 		;;
+	ubnt,unifi-cloud-key-gen1)
+		ucidef_set_interface_lan "lan"
+		;;
 	esac
 }
 

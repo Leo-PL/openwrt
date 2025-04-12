@@ -194,3 +194,15 @@ define Device/unielec_u7623-02-emmc-512m-legacy
   SUPPORTED_DEVICES := unielec,u7623-02-emmc-512m
 endef
 TARGET_DEVICES += unielec_u7623-02-emmc-512m-legacy
+
+define Device/unifi_cloudkey-gen1
+  DEVICE_VENDOR := Ubiquiti
+  DEVICE_MODEL := UniFi Cloud Key Gen1
+  DEVICE_DTS := mt7623a-ubnt-unifi-cloudkey-gen1
+  DEVICE_DTS_DIR := ../dts
+  KERNEL_NAME := zImage
+  KERNEL := kernel-bin | append-dtb | uImage none
+  KERNEL_INITRAMFS := kernel-bin | append-dtb | uImage none
+  DEVICE_PACKAGES := kmod-mmc mkf2fs e2fsprogs partx-utils
+endef
+TARGET_DEVICES += unifi_cloudkey-gen1
