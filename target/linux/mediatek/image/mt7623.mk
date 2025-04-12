@@ -91,7 +91,7 @@ define Device/bananapi_bpi-r2
   DEVICE_VENDOR := Bananapi
   DEVICE_MODEL := BPi-R2
   DEVICE_DTS := mt7623n-bananapi-bpi-r2
-  DEVICE_PACKAGES := mkf2fs e2fsprogs kmod-usb3 kmod-ata-ahci
+  DEVICE_PACKAGES := mkf2fs e2fsprogs kmod-usb3 kmod-ata-ahci kmod-ata-ahci-mtk
   UBOOT_OFFSET := 320k
   UBOOT_TARGET := mt7623n_bpir2
   UBOOT_IMAGE := u-boot.bin
@@ -133,7 +133,7 @@ define Device/unielec_u7623-02
   DEVICE_DTS := mt7623a-unielec-u7623-02
   DEVICE_DTS_DIR := ../dts
   DEVICE_PACKAGES := kmod-fs-vfat kmod-nls-cp437 kmod-nls-iso8859-1 kmod-mmc \
-       mkf2fs e2fsprogs kmod-usb-ohci kmod-usb2 kmod-usb3 kmod-ata-ahci
+       mkf2fs e2fsprogs kmod-usb-ohci kmod-usb2 kmod-usb3 kmod-ata-ahci kmod-ata-ahci-mtk
   UBOOT_OFFSET := 256k
   UBOOT_TARGET := mt7623a_unielec_u7623
   UBOOT_IMAGE := u-boot-mtk.bin
@@ -185,7 +185,7 @@ define Device/unielec_u7623-02-emmc-512m-legacy
   KERNEL_INITRAMFS := kernel-bin | append-dtb | uImage none
   DEVICE_PACKAGES := kmod-fs-vfat kmod-nls-cp437 kmod-nls-iso8859-1 kmod-mmc \
 	mkf2fs e2fsprogs kmod-usb-ohci kmod-usb2 kmod-usb3 kmod-ata-ahci \
-	partx-utils
+	kmod-ata-ahci-mtk partx-utils
   IMAGES := sysupgrade.bin.gz
   IMAGE/sysupgrade.bin.gz := append-kernel |\
 				pad-to 4864k | fat-recovery-fs |\
